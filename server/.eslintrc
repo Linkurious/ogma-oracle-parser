@@ -1,0 +1,21 @@
+{
+  "extends": [
+    "eslint-config-google",
+    "plugin:node/recommended",
+  ],
+  "rules": {
+    "max-len": [1,120, 4, {"ignoreUrls": true}],
+    "max-nested-callbacks": ["error", 7],
+    "node/no-unpublished-require": 0
+  },
+  "globals": {
+    "assert": true
+  },
+  "plugins": [
+    "node"
+  ],
+  "env": {
+    "node": true,
+    "mocha": true
+  }
+}

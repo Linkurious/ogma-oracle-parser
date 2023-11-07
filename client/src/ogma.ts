@@ -8,23 +8,23 @@ const schema = {
     city: {
       label: 'city',
       properties: {
-        city: 'string',
-        country: 'string',
+        CITY: 'string',
+        COUNTRY: 'string',
       },
     },
     airport: {
       label: 'located_in',
       properties: {
-        name: 'string',
-        iata: 'string',
-        icao: 'string',
-        airport_type: 'string',
-        longitude: 'number',
-        latitude: 'number',
-        altitude: 'number',
-        timezone: 'string',
-        tzdbtime: 'string',
-        dst: 'string',
+        NAME: 'string',
+        IATA: 'string',
+        ICAO: 'string',
+        AIRPORT_TYPE: 'string',
+        LONGITUDE: 'number',
+        LATITUDE: 'number',
+        ALTITUDE: 'number',
+        TIMEZONE: 'string',
+        TZDBTIME: 'string',
+        DST: 'string',
       }
     }
   },
@@ -48,7 +48,7 @@ const schema = {
 };
 
 const connector = new Connector<typeof schema>(schema);
-
+window.connector = connector;
 export function setupOgma(element: HTMLButtonElement) {
   const ogma = new Ogma({
     container: element,
@@ -116,8 +116,14 @@ export function setupOgma(element: HTMLButtonElement) {
     .then(([cities, airports]) => ogma.addNodes(cities
       .slice(0, 300)
       .concat(airports.slice(0, 300))))
-    .then(() => connector.fetchEdgesByType('route'))
-    .then((edges) => ogma.addEdges(edges, { ignoreInvalid: true }))
+    .then(() => Promise.all([
+      connector.fetchEdgesByType('located_in'),
+      connector.fetchEdgesByType('route'),
+    ]))
+    .then(([located, route]) => {
+      console.log('located', located, 'route', route);
+     return  ogma.addEdges(located.concat(route), { ignoreInvalid: true })
+    })
     .then(() => {
       return ogma.layouts.force({ locate: true, gpu: true })
     })

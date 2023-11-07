@@ -1,8 +1,21 @@
 import axios from 'axios';
-import { DBSchema, GRAPH_ID, SQL_RESPONSE } from './types';
+import { DBSchema } from './types';
 import { RawNode, RawEdge } from '@linkurious/ogma';
 
 const queryRoute = 'http://localhost:1337/query';
+const clobRoute = 'http://localhost:1337/clob-query';
+
+export function rawIdToId(jsonId: string) {
+  const match = jsonId.match(/(.*)\{.+:([0-9]+)/);
+  if (!match || match.length !== 3) throw new Error('Invalid ID');
+  return `${match[1]}:${match[2]}`;
+}
+
+export function indexFromId(id: string) {
+  const match = id.match(/(.+):(.+)/);
+  if (!match || match.length !== 3) throw new Error('Invalid ID');
+  return match[2];
+}
 
 export class Connector<S extends DBSchema>{
   public schema: S;
@@ -10,154 +23,89 @@ export class Connector<S extends DBSchema>{
     this.schema = schema;
   }
 
-
-  getNodes<
-    TableName extends string & keyof S['nodes'],
-    NodeData extends S['nodes'][TableName]['properties']
-  >(type: TableName, data: SQL_RESPONSE): RawNode<NodeData>[] {
-    const { metaData, rows } = data;
-    const nodes = rows.map((row: (string | GRAPH_ID)[]) => {
-      const node: Partial<RawNode<NodeData>> = { id: '', data: {} };
-      metaData.forEach(({ name }) => {
-        if (name === 'ID') {
-          const { KEY_VALUE, ELEM_TABLE } = row.shift() as GRAPH_ID;
-          node[name.toLowerCase() as 'id'] = KEY_VALUE.ID;
-          node.data.type = ELEM_TABLE;
-        } else {
-          node.data[name.toLowerCase() as keyof NodeData] = row.shift() as string;
-        }
-      })
-      return node;
-    });
-    return nodes as RawNode<NodeData>[];
-  }
-
-  getEdges<
-    TableName extends string & keyof S['edges'],
-    EdgeData extends S['edges'][TableName]['properties']
-  >(type: TableName, data: SQL_RESPONSE): RawEdge<EdgeData>[] {
-    const { metaData, rows } = data;
-    const edges = rows.map((row: (string | GRAPH_ID)[]) => {
-      const edge: Partial<RawEdge<EdgeData>> = { source: '', edge: '', data: {} };
-      metaData.forEach(({ name }) => {
-        if (name === 'SOURCE' || name === 'TARGET' || name === 'ID') {
-          const { KEY_VALUE, ELEM_TABLE } = row.shift() as GRAPH_ID;
-          edge[name.toLowerCase()] = +KEY_VALUE.ID;
-          if (name === 'ID') {
-            edge.data.type = ELEM_TABLE;
-          }
-        } else {
-          edge.data[name.toLowerCase()] = row.shift() as string;
-        }
-      })
-      return edge;
-    });
-    return edges;
-  }
-
   fetchNodesByType<
     TableName extends string & keyof S['nodes'],
     NodeData extends S['nodes'][TableName]['properties']
   >(type: TableName,): Promise<RawNode<NodeData>[]> {
-
-    const keys = Object.keys(this.schema.nodes[type].properties);
     const sql = `select * 
     from graph_table (
       openflights_graph
       match (v is ${type})
       columns (
-        VERTEX_ID(v) as id
-        ${keys.map((key) => `,v.${key} as ${key}`).join('')}
+        VERTEX_ID(v) as node
       )
     )`;
-    return axios.post(queryRoute, {
-      sql
-    })
-      .then(({ data }) => this.getNodes(type, data))
-
+    return this.getJSON(sql)
+      .then(({ nodes }) => nodes);
   }
+
   fetchEdgesByType<
     TableName extends string & keyof S['edges'],
-    NodeData extends S['edges'][TableName]['properties']
-  >(type: TableName,): Promise<RawNode<NodeData>[]> {
-
-    const keys = Object.keys(this.schema.edges[type].properties);
-    const sql = `select *
+    EdgeData extends S['edges'][TableName]['properties']
+  >(type: TableName,): Promise<RawEdge<EdgeData>[]> {
+    const sql = `select e1
     from graph_table (
       openflights_graph
-      match (v1)<-[e is ${type}]->(v2)
+      match ()-[e is ${type}]-()
       columns (
-        EDGE_ID(e) as id,
-        VERTEX_ID(v1) as source,
-        VERTEX_ID(v2) as target
-        ${keys.map((key) => `,e.${key} as ${key}`).join('')}
+        EDGE_ID(e) as e1
       )
-    )`;
-    return axios.post(queryRoute, {
-      sql
-    })
-      .then(({ data }) => this.getEdges(type, data))
+    ) fetch first 32767 rows only`;
+    // TODO: remove the fetch first 32767 rows only
+    // when Oracle will have confirmed wether it is a bug on their side or not
+    return this.getJSON(sql)
+      .then(({ edges }) => edges);
+  }
 
+  getJSON(query: string) {
+    const sql = `
+    SELECT CUST_SQLGRAPH_JSON('${query}') AS COLUMN_ALIAS FROM DUAL`;
+    const queryTest = query.replaceAll(/\'\'/g, `'`).replaceAll(/[\n|\t| ]+/g, ' ')
+    console.log(queryTest);
+    console.log(sql.replaceAll(/\'\'/g, `'`).replaceAll(/[\n|\t| ]+/g, ' '));
+    axios.post(queryRoute, {
+      sql: queryTest,
+    })
+      .then(({ data }) => {
+        console.log(data);
+      });
+    return axios.post(clobRoute, {
+      sql,
+    })
+      .then(({ data }) => {
+        const { vertices, edges } = JSON.parse(data);
+        console.log(vertices);
+        return {
+          nodes: vertices.map(({ id: rawId, properties }) => {
+            return {
+              // Could two vertices have the same ID if they are from different tables?
+              id: rawIdToId(rawId),
+              data: properties,
+            }
+          }),
+          edges: edges.map(({ id: rawId, properties, source, target }) => {
+            return {
+              source: rawIdToId(source),
+              target: rawIdToId(target),
+              id: rawIdToId(rawId),
+              data: properties,
+            }
+          })
+        };
+      });
   }
 
   expand(nodeId: number) {
-    const neighborType = 'airport';
-    const edgeType = 'route';
-    const nodeKeys = Object.keys(this.schema.nodes[neighborType].properties);
-    const edgeKeys = Object.keys(this.schema.edges[edgeType].properties);
-    const name = ogma.getNode(nodeId).getData('name')
-    const sql = `select *
+    const query = `select v, e
     from graph_table (
       openflights_graph
-      match (v1)<-[e]->(v2 is ${neighborType})
-      where (v1.name = '${name}')
+      match (v1)<-[e]->(v2)
+      where (JSON_VALUE(VERTEX_ID(v1), ''$.KEY_VALUE.ID'') = ''${indexFromId(`${nodeId}`)}'')
       columns (
-        EDGE_ID(e) as edgeId,
-        VERTEX_ID(v2) as target
-        ${nodeKeys.map((key) => `,v2.${key} as NODE${key}`).join('')}
-        ${edgeKeys.map((key) => `,e.${key} as EDGE${key}`).join('')}
-      )
+        VERTEX_ID(v2) as v,
+        EDGE_ID(e) as e
+        )
     )`;
-      console.log(sql);
-      window.sql = sql;
-    return axios.post(queryRoute, {
-      sql
-    })
-      .then(({ data }) => {
-        const nodes = [];
-        const edges = [];
-        const { rows, metaData } = data;
-        const properties = metaData.slice(2);
-        for (let i = 0; i < rows.length; i++) {
-          const row = rows[i];
-          const edgeId = row[0] as GRAPH_ID;
-          const neighborId = row[1] as GRAPH_ID;
-          const edge = {
-            id: edgeId.KEY_VALUE.ID, source: nodeId, target: neighborId.KEY_VALUE.ID, data: {
-              type: edgeId.ELEM_TABLE
-            }
-          };
-          const node = {
-            id: neighborId.KEY_VALUE.ID, data: {
-              type: neighborId.ELEM_TABLE
-            }
-          };
-          for (let j = 0; j < properties.length; j++) {
-            const { name } = properties[j];
-            if (name.startsWith('NODE')) {
-              node.data[name.substring(4).toLowerCase()] = row[j + 2];
-            }
-            if (name.startsWith('EDGE')) {
-              edge.data[name.substring(4).toLowerCase()] = row[j + 2];
-            }
-          }
-          nodes.push(node);
-          edges.push(edge);
-        }
-
-        return {
-          nodes, edges
-        };
-      });
+    return this.getJSON(query)
   }
 }

@@ -111,6 +111,39 @@ create property graph openflights_graph
 And you are done ! 
 
 
+### Add the functions necessary to get JSON results
+The `ORA_SQLGRAPH_TO_JSON` function should be part of Oracle Graph server 23.4, but if you have just pulled the docker instance, you'll probably have an older version. Try first to run the project, and see if it complains that the function does not exist. 
+If it is the case: 
+```sh
+wget https://raw.githubusercontent.com/oracle/apex/23.1/plugins/region/graph-visualization/optional-23c-only/gvt_sqlgraph_to_json.sql
+```
+
+then add 
+```SQL
+CREATE OR REPLACE FUNCTION CUST_SQLGRAPH_JSON (
+      QUERY VARCHAR2
+    ) RETURN CLOB
+      AUTHID CURRENT_USER IS
+      INCUR    SYS_REFCURSOR;
+      L_CUR    NUMBER;
+      RETVALUE CLOB;
+    BEGIN
+      OPEN INCUR FOR QUERY;
+      L_CUR := DBMS_SQL.TO_CURSOR_NUMBER(INCUR);
+      RETVALUE := ORA_SQLGRAPH_TO_JSON(L_CUR);
+      DBMS_SQL.CLOSE_CURSOR(L_CUR);
+      RETURN RETVALUE;
+    END;
+/
+```
+to the end of the file
+then within your `SQLCL` type 
+```
+@path-to-your-sql-file
+```
+
+and it should create the functions. You are good to go ! 
+
 ## How to run it ? 
 
 Let's say you did all the steps above, restarted your laptop, you need to start your docker container: 

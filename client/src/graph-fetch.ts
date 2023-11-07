@@ -16,6 +16,11 @@ export function indexFromId(id: string) {
   if (!match || match.length !== 3) throw new Error('Invalid ID');
   return match[2];
 }
+export function tableFromId(id: string) {
+  const match = id.match(/(.+):(.+)/);
+  if (!match || match.length !== 3) throw new Error('Invalid ID');
+  return match[1];
+}
 
 export class Connector<S extends DBSchema>{
   public schema: S;

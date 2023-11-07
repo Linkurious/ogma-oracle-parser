@@ -1,8 +1,12 @@
 import Ogma from "@linkurious/ogma/umd";
 import { Connector } from "./graph-fetch";
+import { LeftPanel } from "./left-panel";
 import { icons } from './icons'
-const fontName = 'Font Awesome 6 Free';
 
+const leftPanelRoot = document.createElement('div');
+leftPanelRoot.classList.add('left-panel');
+const leftPanel = new LeftPanel(leftPanelRoot);
+const fontName = 'Font Awesome 6 Free';
 const schema = {
   nodes: {
     city: {
@@ -82,7 +86,8 @@ export function setupOgma(element: HTMLButtonElement) {
       color: 'black',
       width: 2,
     },
-  })
+  });
+  ogma.layers.addLayer(leftPanelRoot);
   ogma.events.on('doubleclick', (evt) => {
     if (!evt.target || !evt.target.isNode) return;
     const nodeId = evt.target.getId();
@@ -106,7 +111,11 @@ export function setupOgma(element: HTMLButtonElement) {
 
         })
       })
-  })
+  });
+  ogma.events.on('click', (evt) => {
+    if(!evt.target) return leftPanel.clear();
+    leftPanel.setGraphElement(evt.target)
+  });
 
   return Promise.all([
     connector.fetchNodesByType('city'),

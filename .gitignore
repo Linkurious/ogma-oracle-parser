@@ -2,3 +2,4 @@
 sqlcl/
 **/node_modules/
 **/dist/
+example/compose-stack/transform.mjs

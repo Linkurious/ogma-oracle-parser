@@ -13,7 +13,8 @@
     "vite": "^4.4.5"
   },
   "dependencies": {
-    "@linkurious/ogma": "^4.5.4-PR-3494.3",
+    "@linkurious/ogma": "^4.5.0",
+    "@linkurious/ogma-oracle-parser": "file:../parser",
     "axios": "^1.5.1"
   }
 }

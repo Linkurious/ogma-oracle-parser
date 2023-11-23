@@ -1,4 +1,4 @@
 .vscode
-client/node_modules/
-server/node_modules/
 sqlcl/
+**/node_modules/
+**/dist/

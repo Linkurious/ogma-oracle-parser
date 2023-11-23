@@ -1,7 +1,9 @@
 import Ogma from "@linkurious/ogma/umd";
+import { tableFromId } from "@linkurious/ogma-oracle-parser";
+
 import { Connector } from "./graph-fetch";
 import { LeftPanel } from "./left-panel";
-import { icons } from './icons'
+import { icons } from './icons';
 
 const leftPanelRoot = document.createElement('div');
 leftPanelRoot.classList.add('left-panel');
@@ -59,7 +61,7 @@ export function setupOgma(element: HTMLButtonElement) {
   });
   window.ogma = ogma;
   ogma.styles.addNodeRule({
-    color: node => node.getData('type') === 'CITIES' ? 'red' : 'blue',
+    color: node => tableFromId(node.getId()) === 'CITIE' ? 'red' : 'blue',
     icon: {
       font: fontName,
       color: 'white',
@@ -99,29 +101,27 @@ export function setupOgma(element: HTMLButtonElement) {
         const edgeIds = edges.map(e => e.id);
 
         return ogma.addNodes(nodes, { ignoreInvalid: true })
-        .then(() => ogma.addEdges(edges, { ignoreInvalid: true }))
-        .then(() => {
-          const neighbors = ogma.getNodes(nodeIds);
-          const edges = ogma.getEdges(edgeIds);
-          highlighted.add(neighbors);
-          highlighted.add(edges);
-          ogma.getNodes().setAttribute('layoutable', false);
-          neighbors.setAttribute('layoutable', true);
-          return ogma.layouts.force({ gpu: true })
+          .then(() => ogma.addEdges(edges, { ignoreInvalid: true }))
+          .then(() => {
+            const neighbors = ogma.getNodes(nodeIds);
+            const edges = ogma.getEdges(edgeIds);
+            highlighted.add(neighbors);
+            highlighted.add(edges);
+            ogma.getNodes().setAttribute('layoutable', false);
+            neighbors.setAttribute('layoutable', true);
+            return ogma.layouts.force({ gpu: true });
 
-        })
-      })
+          });
+      });
   });
   ogma.events.on('click', (evt) => {
-    if(!evt.target) return leftPanel.clear();
-    leftPanel.setGraphElement(evt.target)
+    if (!evt.target) return leftPanel.clear();
+    leftPanel.setGraphElement(evt.target);
   });
-
   return Promise.all([
     connector.fetchNodesByType('city'),
     connector.fetchNodesByType('airport'),
   ])
-
     .then(([cities, airports]) => ogma.addNodes(cities
       .slice(0, 300)
       .concat(airports.slice(0, 300))))
@@ -130,13 +130,12 @@ export function setupOgma(element: HTMLButtonElement) {
       connector.fetchEdgesByType('route'),
     ]))
     .then(([located, route]) => {
-      console.log('located', located, 'route', route);
-     return  ogma.addEdges(located.concat(route), { ignoreInvalid: true })
+      return ogma.addEdges(located.concat(route), { ignoreInvalid: true });
     })
     .then(() => {
-      return ogma.layouts.force({ locate: true, gpu: true })
+      return ogma.layouts.force({ locate: true, gpu: true });
     })
     .then(() => {
       console.log(ogma.getNodes());
-    })
+    });
 }

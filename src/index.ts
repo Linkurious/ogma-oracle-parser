@@ -15,7 +15,10 @@ export function indexFromId(id: string) {
 export function tableFromId(id: string) {
   const match = id.match(/(.+):(.+)/);
   if (!match || match.length !== 3) throw new Error('Invalid ID');
-  return match[1];
+  return match[1].slice(0, -1);
+}
+export function rawIdFromId(id: string): RawId {
+  return `${tableFromId(id)}{"ID":${+indexFromId(id)}}`;
 }
 
 export function parse<ND, ED>({ vertices, edges }: OracleResponse<ND, ED>, idFn = rawIdToId): RawGraph<ND, ED> {

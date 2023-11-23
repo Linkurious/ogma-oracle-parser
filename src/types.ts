@@ -1,7 +1,7 @@
 
 export type TableName = string;
 export type RowId = number;
-export type RawId = `${TableName}\{ :${RowId} \}`;
+export type RawId = `${TableName}\{"ID":${RowId}\}`;
 
 export type OracleResponse<
     ND = Record<string, unknown>,

@@ -1,0 +1,66 @@
+{
+  "name": "@linkurious/ogma-oracle-parser",
+  "version": "1.0.0",
+  "description": "Parses responses from Oracle graph DB into Ogma format",
+  "main": "dist/ogma-oracle-parser.umd.js",
+  "module": "dist/ogma-oracle-parser.umd.js",
+  "types": "dist/types/index.d.ts",
+  "keywords": [
+    "ogma",
+    "parser",
+    "Oracle",
+    "SQL/PGQ",
+    "oracledb"
+  ],
+  "scripts": {
+    "prebuild": "tsc",
+    "build": "vite build",
+    "prepack": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Leo Nicolle",
+  "license": "ISC",
+  "private": false,
+  "typesVersions": {
+    "*": {
+      "esm": [
+        "./dist/types/index.d.ts"
+      ],
+      "umd": [
+        "./dist/types/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "LICENCE",
+    "dist/ogma-oracle-parser.mjs",
+    "dist/ogma-oracle-parser.umd.js",
+    "dist/types/index.d.ts",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "default": "./dist/ogma-oracle-parser.mjs",
+        "types": "./dist/types/index.d.ts"
+      },
+      "require": {
+        "default": "./dist/ogma-oracle-parser.umd.js",
+        "types": "./dist/types/index.d.ts"
+      }
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@linkurious/ogma": "^4.5.0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/oracledb": "^6.0.3",
+    "oracledb": "^6.2.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0"
+  }
+}

@@ -1,7 +1,10 @@
 
+import { Lob } from "oracledb";
 import { OracleResponse, RawId } from "./types";
-import { RawGraph } from "@linkurious/ogma";
+import { RawGraph, RawNode } from "@linkurious/ogma";
 export * from './types';
+
+
 export function rawIdToId(rawId: RawId) {
   const match = rawId.match(/(.*)\{.+:([0-9]+)/);
   if (!match || match.length !== 3) throw new Error('Invalid ID');
@@ -38,4 +41,47 @@ export function parse<ND, ED>({ vertices, edges }: OracleResponse<ND, ED>, idFn 
       };
     })
   };
+}
+
+function readLob<T = unknown>(lob: Lob) {
+  return new Promise<T>((resolve, reject) => {
+    let json = "";
+    lob.setEncoding('utf8');
+    lob.on('error', (err) => {
+      reject(err);
+    });
+    lob.on('data', (chunk) => {
+      json += chunk;
+    });
+    lob.on('end', () => {
+      lob.destroy();
+    });
+    lob.on('close', () => {
+      resolve(JSON.parse(json));
+    });
+  });
+}
+
+export function parseLob<ND = unknown, ED = unknown>(lob: Lob) {
+  return readLob<OracleResponse<ND, ED> & { numResults: number; }>(lob)
+    .then((result) => ({ ...parse<ND, ED>(result), numResults: result.numResults }));
+}
+
+
+type ParserOptions<ND, ED> = {
+  rawIdtoId: (id: RawId) => string;
+  indexFromId: (id: string) => string;
+  labelFromId: (id: string) => string;
+  parseNode: (opts: { id: RawId, properties: Record<string, any>; }) => RawNode<ND>;
+};
+export class OgmaOracleParser {
+
+  constructor(options) {
+
+  }
+
+  parseNode({ id, properties }: ) {
+
+  }
+
 }

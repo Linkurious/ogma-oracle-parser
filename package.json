@@ -16,7 +16,10 @@
     "prebuild": "tsc",
     "build": "vite build",
     "prepack": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "author": "Leo Nicolle",
   "license": "ISC",
@@ -56,11 +59,11 @@
   "peerDependencies": {
     "@linkurious/ogma": "^4.5.0"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/oracledb": "^6.0.3",
     "oracledb": "^6.2.0",
     "typescript": "^5.2.2",
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "vitepress": "^1.0.0-rc.30"
   }
 }

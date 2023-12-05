@@ -13,3 +13,7 @@ Please check our [getting started](https://linkurious.github.io/ogma-oracle-pars
 # How to contribute ?
 
 This is an open source project maintained by Linkurious, if you want to contribute, you can submit a PR and we'll exmine it.
+
+# Licence
+
+Apache 2.0

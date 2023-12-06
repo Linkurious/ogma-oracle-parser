@@ -16,12 +16,13 @@
     "prebuild": "tsc",
     "build": "vite build",
     "prepack": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "predocs:publish": "npm run docs:build",
-    "docs:publish": "gh-pages -d docs/.vitepress/dist"
+    "docs:publish": "gh-pages -d docs/.vitepress/dist",
+    "test:unit": "vitest run",
+    "test:dev": "vitest"
   },
   "author": "Leo Nicolle",
   "license": "ISC",
@@ -59,14 +60,16 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@linkurious/ogma": "^4.5.0"
+    "@linkurious/ogma": "^4.5.0",
+    "oracledb": "^6.2.0"
   },
   "devDependencies": {
     "@types/oracledb": "^6.0.3",
     "gh-pages": "^6.1.0",
-    "oracledb": "^6.2.0",
+    "tsdoc-markdown": "^0.1.0",
     "typescript": "^5.2.2",
     "vite": "^5.0.0",
-    "vitepress": "^1.0.0-rc.30"
+    "vitepress": "^1.0.0-rc.30",
+    "vitest": "^1.0.1"
   }
 }

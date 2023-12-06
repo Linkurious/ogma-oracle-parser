@@ -4,7 +4,8 @@ import { defineConfig } from 'vitepress';
 export default defineConfig({
   title: "ogma-oracle-parser",
   description: "Seamless Ogma and Oracle Property Graph integration",
-  head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
+  head: [['link', { rel: 'icon', href: '/ogma-oracle-parser/favicon.ico' }]],
+  base: '/ogma-oracle-parser/',
   themeConfig: {
     logo: '/logo-small.svg',
     nav: [

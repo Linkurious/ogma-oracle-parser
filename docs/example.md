@@ -46,11 +46,11 @@ npm run build && npm run start
 
 You know have an express app that answers to a few routes by querying your SQL database:
 
-- [GET] /nodes/:`type` Returns all nodes of a certain type. Type must match with the labels passed in your `CREATE PROPERTY GRAPH` call.
-- [GET] /edges/:`types` Returns all edges of a certain type.
-- [GET] /node/:`id` Returns the node corresponding to `id`. Id must be of the form: `LABEL-ID`.
-- [GET] /edge/:`id` Returns the edge corresponding to `id`
-- [GET /expand/:`id` Returns all the neighbors of the node refered by `id`.
+- `[GET] /nodes/:type` Returns all nodes of a certain type. Type must match with the labels passed in your `CREATE PROPERTY GRAPH` call.
+- `[GET] /edges/:types` Returns all edges of a certain type.
+- `[GET] /node/:id` Returns the node corresponding to `id`. Id must be of the form: `LABEL-ID`.
+- `[GET] /edge/:id` Returns the edge corresponding to `id`
+- `[GET /expand/:id` Returns all the neighbors of the node refered by `id`.
 
 ## Start the frontend
 

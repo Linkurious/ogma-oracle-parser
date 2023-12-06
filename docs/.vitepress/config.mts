@@ -47,6 +47,7 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Example', link: '/example' },
       { text: 'API', link: '/api/classes/OgmaOracleParser' },
+      { text: 'Getting started', link: '/getting-started' },
 
     ],
     sidebar,

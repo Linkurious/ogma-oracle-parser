@@ -1,49 +1,53 @@
 
-import { Lob } from "oracledb";
-import { OracleResponse, RawId } from "./types";
+import { Connection, Lob } from "oracledb";
+import { OracleResponse, ParserOptions, SQLID, SQLIDtoIdFn, parseFn, parseNodeFn } from "./types";
 import { RawGraph, RawNode } from "@linkurious/ogma";
 export * from './types';
-
-
-export function rawIdToId(rawId: RawId) {
-  const match = rawId.match(/(.*)\{.+:([0-9]+)/);
+/**
+ * Transforms an id from SQL database to a string id
+ * @param rawId SQL Oracle ID
+ * @returns string id
+ */
+export function SQLIDtoId(sqlid: SQLID) {
+  const match = sqlid.match(/(.*)\{.+:([0-9]+)/);
   if (!match || match.length !== 3) throw new Error('Invalid ID');
   return `${match[1]}:${match[2]}`;
 }
+/**
+ * Retrieves the elment ID in his table ID from a string id
+ * @param id a string id (from SQLIDToId)
+ * @returns SQL ID in table
+ */
 export function indexFromId(id: string) {
   const match = id.match(/(.+):(.+)/);
   if (!match || match.length !== 3) throw new Error('Invalid ID');
   return match[2];
 }
-export function tableFromId(id: string) {
+/**
+ * Retrieves the label from a string id
+ * @param id a string id (from SQLIDToId)
+ * @returns label defined in create property graph query
+ */
+export function labelFromId(id: string) {
   const match = id.match(/(.+):(.+)/);
   if (!match || match.length !== 3) throw new Error('Invalid ID');
   return match[1].slice(0, -1);
 }
-export function rawIdFromId(id: string): RawId {
-  return `${tableFromId(id)}{"ID":${+indexFromId(id)}}`;
+/**
+ * Transforms a string id to a SQL ID
+ * @param id a string id (from rawIdToId)
+ * @returns a SQL ID
+ */
+export function SQLIDFromId(id: string): SQLID {
+  return `${labelFromId(id)}{"ID":${+indexFromId(id)}}`;
 }
 
-export function parse<ND, ED>({ vertices, edges }: OracleResponse<ND, ED>, idFn = rawIdToId): RawGraph<ND, ED> {
-  return {
-    nodes: vertices.map(({ id: rawId, properties }) => {
-      return {
-        id: idFn(rawId),
-        data: properties,
-      };
-    }),
-    edges: edges.map(({ id: rawId, properties, source, target }) => {
-      return {
-        source: idFn(source),
-        target: idFn(target),
-        id: idFn(rawId),
-        data: properties,
-      };
-    })
-  };
-}
-
-function readLob<T = unknown>(lob: Lob) {
+/**
+ * READ LOB function
+ * @param lob 
+ * @returns 
+ */
+export function readLob<T = unknown>(lob: Lob) {
   return new Promise<T>((resolve, reject) => {
     let json = "";
     lob.setEncoding('utf8');
@@ -62,26 +66,70 @@ function readLob<T = unknown>(lob: Lob) {
   });
 }
 
-export function parseLob<ND = unknown, ED = unknown>(lob: Lob) {
-  return readLob<OracleResponse<ND, ED> & { numResults: number; }>(lob)
-    .then((result) => ({ ...parse<ND, ED>(result), numResults: result.numResults }));
-}
+export class OgmaOracleParser<ND = unknown, ED = unknown> {
 
-
-type ParserOptions<ND, ED> = {
-  rawIdtoId: (id: RawId) => string;
-  indexFromId: (id: string) => string;
-  labelFromId: (id: string) => string;
-  parseNode: (opts: { id: RawId, properties: Record<string, any>; }) => RawNode<ND>;
-};
-export class OgmaOracleParser {
-
-  constructor(options) {
-
+  public SQLIDtoId: (id: SQLID) => string;
+  public SQLIDFromId: (id: string) => SQLID;
+  constructor(options: ParserOptions<ND, ED>) {
+    this.SQLIDtoId = options.SQLIDtoId || SQLIDtoId;
+    this.SQLIDFromId = options.SQLIDFromId || SQLIDFromId;
   }
 
-  parseNode({ id, properties }: ) {
-
+  parse({ vertices, edges }: OracleResponse<ND, ED>) {
+    const idFn = this.SQLIDtoId;
+    return {
+      nodes: vertices.map(({ id: sqlid, properties }) => {
+        return {
+          id: idFn(sqlid),
+          data: properties,
+        };
+      }),
+      edges: edges.map(({ id: sqlid, properties, source, target }) => {
+        return {
+          source: idFn(source),
+          target: idFn(target),
+          id: idFn(sqlid),
+          data: properties,
+        };
+      })
+    } as RawGraph<ND, ED>;
   }
 
+  parseLob(lob: Lob) {
+    return readLob<OracleResponse<ND, ED> & { numResults: number; }>(lob)
+      .then((result) => ({ ...this.parse(result), numResults: result.numResults }));
+  }
+
+  async getRawGraph({ query, conn, pageStart, pageLength, maxResults }:
+    {
+      query: string,
+      conn: Connection,
+      pageStart?: number,
+      pageLength?: number,
+      maxResults?: number;
+    }) {
+
+    let hasFinised = false;
+    let totalResults = 0;
+    pageStart = pageStart || 0;
+    pageLength = pageLength || 32000;
+    maxResults = maxResults || Infinity;
+    const graph: RawGraph<ND, ED> = { nodes: [], edges: [] };
+    while (!hasFinised && totalResults < maxResults) {
+      const lobs = await conn.execute<Lob[]>(`SELECT CUST_SQLGRAPH_JSON('${query}', ${pageStart}, ${pageLength}) AS COLUMN_ALIAS FROM DUAL`);
+      if (!lobs.rows) {
+        return graph;
+      }
+      const { numResults, nodes, edges } = await this.parseLob(lobs.rows[0][0]);
+      hasFinised = pageStart >= numResults;
+      pageStart += pageLength;
+      graph.nodes.push(...nodes);
+      graph.edges.push(...edges);
+      totalResults = graph.nodes.length + graph.edges.length;
+    }
+    return graph;
+  }
 }
+const parser = new OgmaOracleParser({ SQLIDtoId, SQLIDFromId });
+export default parser;
+export const { parse, parseLob, getRawGraph } = parser;

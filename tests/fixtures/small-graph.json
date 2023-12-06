@@ -1,0 +1,104 @@
+{
+  "vertices": [
+    {
+      "id": "AIRPORTS{\"ID\":3}",
+      "properties": {
+        "AIRPORT_TYPE": "airport",
+        "ALTITUDE": 5388,
+        "DST": "U",
+        "IATA": "HGU",
+        "ICAO": "AYMH",
+        "LATITUDE": -5.826789855957031,
+        "LONGITUDE": 144.29600524902344,
+        "NAME": "Mount Hagen Kagamuga Airport",
+        "TIMEZONE": 10,
+        "TZDBTIME": "Pacific\\/Port_Moresby"
+      }
+    },
+    {
+      "id": "AIRPORTS{\"ID\":5}",
+      "properties": {
+        "AIRPORT_TYPE": "airport",
+        "ALTITUDE": 146,
+        "DST": "U",
+        "IATA": "POM",
+        "ICAO": "AYPY",
+        "LATITUDE": -9.443380355834961,
+        "LONGITUDE": 147.22000122070312,
+        "NAME": "Port Moresby Jacksons International Airport",
+        "TIMEZONE": 10,
+        "TZDBTIME": "Pacific\\/Port_Moresby"
+      }
+    },
+    {
+      "id": "AIRPORTS{\"ID\":4}",
+      "properties": {
+        "AIRPORT_TYPE": "airport",
+        "ALTITUDE": 239,
+        "DST": "U",
+        "IATA": "LAE",
+        "ICAO": "AYNZ",
+        "LATITUDE": -6.569803,
+        "LONGITUDE": 146.725977,
+        "NAME": "Nadzab Airport",
+        "TIMEZONE": 10,
+        "TZDBTIME": "Pacific\\/Port_Moresby"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "ROUTES{\"ID\":21350}",
+      "source": "AIRPORTS{\"ID\":3}",
+      "target": "AIRPORTS{\"ID\":1}",
+      "properties": {
+        "AIRLINE_ID": 1308,
+        "CODESHARE": " ",
+        "DISTANCE_IN_KM": 125,
+        "DISTANCE_IN_MI": 77,
+        "EQUIPMENT": "DH8 DHT",
+        "STOPS": 0
+      }
+    },
+    {
+      "id": "ROUTES{\"ID\":49987}",
+      "source": "AIRPORTS{\"ID\":5}",
+      "target": "AIRPORTS{\"ID\":1}",
+      "properties": {
+        "AIRLINE_ID": 328,
+        "CODESHARE": " ",
+        "DISTANCE_IN_KM": 423,
+        "DISTANCE_IN_MI": 263,
+        "EQUIPMENT": "DH4 DH8 DH3",
+        "STOPS": 0
+      }
+    },
+    {
+      "id": "ROUTES{\"ID\":21363}",
+      "source": "AIRPORTS{\"ID\":4}",
+      "target": "AIRPORTS{\"ID\":1}",
+      "properties": {
+        "AIRLINE_ID": 1308,
+        "CODESHARE": " ",
+        "DISTANCE_IN_KM": 157,
+        "DISTANCE_IN_MI": 98,
+        "EQUIPMENT": "DH8",
+        "STOPS": 0
+      }
+    },
+    {
+      "id": "ROUTES{\"ID\":21523}",
+      "source": "AIRPORTS{\"ID\":5}",
+      "target": "AIRPORTS{\"ID\":1}",
+      "properties": {
+        "AIRLINE_ID": 1308,
+        "CODESHARE": " ",
+        "DISTANCE_IN_KM": 423,
+        "DISTANCE_IN_MI": 263,
+        "EQUIPMENT": "DH8",
+        "STOPS": 0
+      }
+    }
+  ],
+  "numResults": 11
+}

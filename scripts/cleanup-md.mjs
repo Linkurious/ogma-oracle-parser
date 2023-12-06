@@ -69,6 +69,8 @@ function cleanupFile(src) {
       content = content.replace('# @linkurious/ogma-oracle-parser', '# Types');
       // remove type Aliases:
       content = content.replace(/## Type Aliases\n\n/gm, '');
+      // prevent from generating  :$ emoji
+      content = content.replace(/:\$/gm, ': $');
       return content;
     })
     .then((parsed) => {

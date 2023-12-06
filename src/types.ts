@@ -23,11 +23,11 @@ export type SQLIDtoIdFn = (id: SQLID) => string;
 /**
  * Function to transform back a string id to a SQL ID
  */
-export type SQLIDFromIdFn = (id: string) => SQLID;
+export type SQLIDfromIdFn = (id: string) => SQLID;
 export type parseFn<ND = unknown, ED = unknown> = (opts: OracleResponse<ND, ED>) => { nodes: RawNode<ND>[], edges: RawEdge<ED>[]; };
 export type ParserOptions<ND, ED> = {
     SQLIDtoId?: SQLIDtoIdFn;
-    SQLIDFromId?: SQLIDFromIdFn;
+    SQLIDfromId?: SQLIDfromIdFn;
     rowId?: (id: string) => string;
     labelFromId?: (id: string) => string;
     parseFn?: parseFn<ND, ED>;

@@ -38,7 +38,7 @@ export function labelFromId(id: string) {
  * @param id a string id (from rawIdToId)
  * @returns a SQL ID
  */
-export function SQLIDFromId(id: string): SQLID {
+export function SQLIDfromId(id: string): SQLID {
   return `${labelFromId(id)}{"ID":${+rowId(id)}}`;
 }
 
@@ -78,10 +78,10 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
   /**
    * Function to transform a string id to a SQL ID
    */
-  public SQLIDFromId: (id: string) => SQLID;
+  public SQLIDfromId: (id: string) => SQLID;
   constructor(options: ParserOptions<ND, ED>) {
     this.SQLIDtoId = options.SQLIDtoId || SQLIDtoId;
-    this.SQLIDFromId = options.SQLIDFromId || SQLIDFromId;
+    this.SQLIDfromId = options.SQLIDfromId || SQLIDfromId;
   }
   /**
    * Takes an [OracleResponse](/api/modules.html#oracleresponse) and returns a RawGraph
@@ -158,6 +158,6 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
     return graph;
   }
 }
-const parser = new OgmaOracleParser({ SQLIDtoId, SQLIDFromId });
+const parser = new OgmaOracleParser({ SQLIDtoId, SQLIDfromId });
 export default parser;
 export const { parse, parseLob, getRawGraph } = parser;

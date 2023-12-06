@@ -1,4 +1,5 @@
 import fs from 'fs/promises';
+import path from 'path';
 const toDelete = [
   '## Hierarchy',
   '## Variables',
@@ -94,4 +95,11 @@ function cleanupDir(dir) {
     });
 }
 
-cleanupDir('docs/api');
+function removeFiles(base) {
+  return Promise.all(['README.md', '.nojekyll']
+    .map(file => fs.rm(path.resolve(base, file))));
+}
+
+cleanupDir('docs/api')
+  .then(() =>
+    removeFiles('docs/api'));

@@ -5,3 +5,4 @@ sqlcl/
 example/compose-stack/transform.mjs
 docs/.vitepress/cache
 docs/api
+reports

@@ -17,5 +17,12 @@ export default defineConfig({
       },
     },
     emptyOutDir: false,
+  },
+  test: {
+    coverage: {
+      reporter: ['json', 'cobertura'],
+      all: true,
+      reportsDirectory: 'reports/coverage'
+    }
   }
 });

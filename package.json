@@ -25,7 +25,7 @@
     "docs:preview": "vitepress preview docs",
     "predocs:publish": "npm run docs:build",
     "docs:publish": "gh-pages -d docs/.vitepress/dist",
-    "test:unit": "vitest run",
+    "test:unit": "vitest run --coverage --reporter=junit --reporter=default --outputFile reports/unit/junit-test-results.xml",
     "test:dev": "vitest"
   },
   "author": "Leo Nicolle",
@@ -73,6 +73,7 @@
   "devDependencies": {
     "@linkurious/eslint-config-ogma": "^1.0.5",
     "@types/oracledb": "^6.0.3",
+    "@vitest/coverage-v8": "^1.0.1",
     "gh-pages": "^6.1.0",
     "tsdoc-markdown": "^0.1.0",
     "typedoc": "^0.25.4",

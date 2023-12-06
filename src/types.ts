@@ -1,22 +1,23 @@
-import { RawEdge, RawNode } from "@linkurious/ogma/dev";
+import { RawEdge, RawNode } from "@linkurious/ogma";
 
-export type TableName = string;
+export type Label = string;
 export type RowId = number;
-export type SQLID = `${TableName}\{"ID":${RowId}\}`;
+export type SQLID = `${Label}{"ID":${RowId}}`;
 
 export type SQLIDtoIdFn = (id: SQLID) => string;
 export type SQLIDFromIdFn = (id: string) => SQLID;
-export type parseNodeFn<ND = unknown> = (opts: { id: SQLID, properties: Record<string, any>; }) => RawNode<ND>;
-export type parseEdgeFn<ED = unknown> = (opts: { id: SQLID, properties: Record<string, any>; }) => RawEdge<ED>;
 export type parseFn<ND = unknown, ED = unknown> = (opts: OracleResponse<ND, ED>) => { nodes: RawNode<ND>[], edges: RawEdge<ED>[]; };
 export type ParserOptions<ND, ED> = {
     SQLIDtoId?: SQLIDtoIdFn;
     SQLIDFromId?: SQLIDFromIdFn;
-    indexFromId?: (id: string) => string;
+    rowId?: (id: string) => string;
     labelFromId?: (id: string) => string;
     parseFn?: parseFn<ND, ED>;
 };
 
+/**
+ * Object returned by CUST_SQLGRAPH_JSON function
+ */
 export type OracleResponse<
     ND = Record<string, unknown>,
     ED = Record<string, unknown>> =

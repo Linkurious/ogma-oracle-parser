@@ -4,3 +4,4 @@ sqlcl/
 **/dist/
 example/compose-stack/transform.mjs
 docs/.vitepress/cache
+docs/api

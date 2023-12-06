@@ -44,10 +44,9 @@ export default defineConfig({
   themeConfig: {
     logo: '/logo-small.svg',
     nav: [
-      { text: 'Home', link: '/' },
+      { text: 'Getting started', link: '/getting-started' },
       { text: 'Example', link: '/example' },
       { text: 'API', link: '/api/classes/OgmaOracleParser' },
-      { text: 'Getting started', link: '/getting-started' },
 
     ],
     sidebar,

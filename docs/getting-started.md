@@ -38,7 +38,7 @@ BEGIN
 END;
 ```
 
-## Retrieve your nodes/edges from the Databse in NOdeJS
+## Retrieve your nodes/edges from the Databse in NodeJS
 
 First, install the ogma, the oracle connector and ogma-oracle-parser:
 
@@ -153,6 +153,27 @@ Now, what you get is this:
 Where `vlabel` and `elabel` are the labels you have passed to SQL in your `CREATE PROPERTY GRAPH` call. `-id` is the id of your element in the table.
 And that's it ! You now have retrieved nodes and edges in the [Ogma format](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
 
+The plugin also provides a [getRawGraph](/api/classes/OgmaOracleParser.html#getrawgraph) function that does all the work for you. You can use it like this:
+
+```ts
+import { getRawGraph } from "@linkurious/ogma-oracle-parser";
+...
+
+app.get("/nodes/:type", (req, res) => {
+  const query = `select v
+          from graph_table (
+            openflights_graph
+            match (v1 is ${req.params.type})
+            columns (
+              VERTEX_ID(v1) as v
+            )
+          )`;
+  return getRawGraph(conn, query).then(({ nodes, edges }) => {
+    return { nodes, edges };
+  });
+});
+```
+
 ## Display your nodes in Ogma
 
 Let' s assume you already have a client side project. Just install Ogma:
@@ -177,3 +198,33 @@ axios.get("http://url-to-node-server:port/nodes/VLABEL").then(({ data }) => {
 ```
 
 And you are done !
+
+## Customize your nodes/edges ids
+
+By default, the plugin transforms the `label:{"ID": id}` into `label-id`.
+You can customize this behaviour by creating an instance of the [OgmaOracleParser](/api/classes/OgmaOracleParser.html#constructors) class"
+
+```ts
+import { OgmaOracleParser } from "@linkurious/ogma-oracle-parser";
+
+const { parse, parseLob, getRawGraph } = new OgmaOracleParser({
+  SQLIDtoId: (label, id) => `${label}-${id}`,
+  SQLIDfromId: (id) => {
+    const [label, id] = id.split("-");
+    return `${label}:{"ID": ${id}}`;
+  },
+});
+```
+
+## Node and Edge data types
+
+You can type the data of your nodes and edges by passing [ND](/api/classes/OgmaOracleParser.html#type-parameters) and [ED](/api/classes/OgmaOracleParser.html#type-parameters) value in the `OgmaOracleParser` constructor:
+
+```ts
+type NodeDataType = { name: string; id: number };
+type EdgeDataType = { score: number };
+const { parse, parseLob, getRawGraph } = new OgmaOracleParser<
+  NodeDataType,
+  EdgeDataType
+>();
+```

@@ -1,0 +1,57 @@
+{
+  "vertices": [
+    {
+      "id": "AIRPORTS{\"ID\":3}",
+      "properties": {
+        "AIRPORT_TYPE": "airport"
+      }
+    },
+    {
+      "id": "AIRPORTS{\"ID\":5}",
+      "properties": {
+        "AIRPORT_TYPE": "airport"
+      }
+    },
+    {
+      "id": "AIRPORTS{\"ID\":4}",
+      "properties": {
+        "AIRPORT_TYPE": "airport"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "ROUTES{\"ID\":21350}",
+      "source": "AIRPORTS{\"ID\":3}",
+      "target": "AIRPORTS{\"ID\":1}",
+      "properties": {
+        "AIRLINE_ID": 1308
+      }
+    },
+    {
+      "id": "ROUTES{\"ID\":49987}",
+      "source": "AIRPORTS{\"ID\":5}",
+      "target": "AIRPORTS{\"ID\":1}",
+      "properties": {
+        "AIRLINE_ID": 328
+      }
+    },
+    {
+      "id": "ROUTES{\"ID\":21363}",
+      "source": "AIRPORTS{\"ID\":4}",
+      "target": "AIRPORTS{\"ID\":1}",
+      "properties": {
+        "AIRLINE_ID": 1308
+      }
+    },
+    {
+      "id": "ROUTES{\"ID\":21523}",
+      "source": "AIRPORTS{\"ID\":5}",
+      "target": "AIRPORTS{\"ID\":1}",
+      "properties": {
+        "AIRLINE_ID": 1308
+      }
+    }
+  ],
+  "numResults": 7
+}

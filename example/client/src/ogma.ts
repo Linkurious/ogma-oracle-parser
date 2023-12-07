@@ -1,6 +1,6 @@
 import Ogma from "@linkurious/ogma/umd";
-import { tableFromId } from "@linkurious/ogma-oracle-parser";
-
+import { labelFromId } from "@linkurious/ogma-oracle-parser";
+import { showLoader, hideLoader } from './loader';
 import { Connector } from "./graph-fetch";
 import { LeftPanel } from "./left-panel";
 import { icons } from './icons';
@@ -54,14 +54,12 @@ const schema = {
 };
 
 const connector = new Connector<typeof schema>(schema);
-window.connector = connector;
-export function setupOgma(element: HTMLButtonElement) {
+export function setupOgma(element: HTMLDivElement) {
   const ogma = new Ogma({
     container: element,
   });
-  window.ogma = ogma;
   ogma.styles.addNodeRule({
-    color: node => tableFromId(node.getId()) === 'CITIE' ? 'red' : 'blue',
+    color: node => labelFromId(`${node.getId()}`) === 'CITIE' ? 'red' : 'blue',
     icon: {
       font: fontName,
       color: 'white',
@@ -118,6 +116,8 @@ export function setupOgma(element: HTMLButtonElement) {
     if (!evt.target) return leftPanel.clear();
     leftPanel.setGraphElement(evt.target);
   });
+
+  showLoader('Loading Airports and Cities');
   return Promise.all([
     connector.fetchNodesByType('city'),
     connector.fetchNodesByType('airport'),
@@ -125,17 +125,22 @@ export function setupOgma(element: HTMLButtonElement) {
     .then(([cities, airports]) => ogma.addNodes(cities
       .slice(0, 300)
       .concat(airports.slice(0, 300))))
-    .then(() => Promise.all([
-      connector.fetchEdgesByType('located_in'),
-      connector.fetchEdgesByType('route'),
-    ]))
+    .then(() => {
+      showLoader('Loading Routes');
+      return Promise.all([
+        connector.fetchEdgesByType('located_in'),
+        connector.fetchEdgesByType('route'),
+      ]);
+    })
     .then(([located, route]) => {
+      hideLoader();
       return ogma.addEdges(located.concat(route), { ignoreInvalid: true });
     })
     .then(() => {
       return ogma.layouts.force({ locate: true, gpu: true });
     })
-    .then(() => {
-      console.log(ogma.getNodes());
+    .catch((e) => {
+      showLoader(`Something went wrong: ${e.message}`);
+      throw e;
     });
 }

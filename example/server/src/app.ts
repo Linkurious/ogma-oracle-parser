@@ -6,7 +6,9 @@ import oracledb from 'oracledb';
 import dbConfig from './config';
 const { user, password, connectString } = dbConfig;
 
-
+const labelMap = new Map([[
+  'CITIE', 'CITY',
+]]);
 export default function createApp() {
   const app = express();
   oracledb.getConnection({
@@ -19,7 +21,7 @@ export default function createApp() {
       app.use(bodyParser.json());
       app.use(cors());
       app.get('/expand/:id', (req, res) => {
-        const label = labelFromId(req.params.id);
+        const label = labelMap.get(labelFromId(req.params.id)) || labelFromId(req.params.id);
         const index = rowId(req.params.id);
         const query = `select v, e
           from graph_table (
@@ -65,16 +67,18 @@ export default function createApp() {
         return getRawGraph({ query, conn })
           .then((r) => res.json(r));
       });
-      app.get('/edges/:type', (req, res) => {
+      app.get('/edges/:type/:pageStart?/:pageLength?/:maxResults?', (req, res) => {
+        const { type, pageStart, pageLength, maxResults } = req.params;
         const query = `select e
           from graph_table (
             openflights_graph
-            match ()-[e1 is ${req.params.type}]-()
+            match ()-[e1 is ${type}]-()
             columns (
               EDGE_ID(e1) as e
             )
           )`;
-        return getRawGraph({ query, conn })
+
+        return getRawGraph({ query, conn, maxResults: +maxResults, pageStart: +pageStart, pageLength: +pageLength })
           .then((r) => res.json(r));
       });
       app.get('/nodes/:type', (req, res) => {

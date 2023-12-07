@@ -1,8 +1,8 @@
-#ogma{
+#ogma {
   width: 100vw;
   height: 100vh;
 }
-body{
+body {
   margin: 0;
   padding: 0;
   width: 100vw;
@@ -10,9 +10,9 @@ body{
   overflow: hidden;
 }
 
-.left-panel{
+.left-panel {
   position: fixed;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   width: 300px;
   height: 100vh;
   background-color: #fff;
@@ -29,34 +29,53 @@ body{
 }
 .left-panel > ul > li {
   padding: 10px;
-
 }
-.left-panel > ul > li >span{
+.left-panel > ul > li > span {
   text-transform: uppercase;
   font-weight: bold;
   font-size: 0.8em;
 }
 
 /** slide in/out animation for panel */
-.left-panel.slide-in{
+.left-panel.slide-in {
   animation: slide-in 0.5s ease-in-out forwards;
 }
-.left-panel.slide-out{
+.left-panel.slide-out {
   animation: slide-out 0.5s ease-in-out forwards;
 }
 @keyframes slide-in {
-  0%{
+  0% {
     transform: translateX(-300px);
   }
-  100%{
+  100% {
     transform: translateX(0);
   }
 }
 @keyframes slide-out {
-  0%{
+  0% {
     transform: translateX(0);
   }
-  100%{
+  100% {
     transform: translateX(-300px);
   }
+}
+
+.loader {
+  position: absolute;
+  z-index: 1000;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  align-items: center;
+  justify-content: space-around;
+  font-size: 3em;
+  font: Roboto;
+  background-color: rgba(200, 200, 200, 0.4);
+  border-radius: 10px;
+  cursor: wait;
+  display: none;
+}
+.loader.active {
+  display: flex;
 }

@@ -1,3 +1,4 @@
+unzip /home/oracle/dataset/dataset.zip -d /home/oracle/dataset
 sqlplus -s graphuser/password@localhost:1521/freepdb1 @/home/oracle/scripts/create-tables.sql
 sqlplus -s graphuser/password@localhost:1521/freepdb1 @/home/oracle/dataset/airports.sql
 sqlplus -s graphuser/password@localhost:1521/freepdb1 @/home/oracle/dataset/cities.sql

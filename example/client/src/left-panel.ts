@@ -1,5 +1,5 @@
 import { Node, Edge } from '@linkurious/ogma';
-import { indexFromId, tableFromId } from '@linkurious/ogma-oracle-parser';
+import { rowId, labelFromId } from '@linkurious/ogma-oracle-parser';
 export class LeftPanel {
   private rootElement: HTMLElement;
   constructor(rootElement: HTMLElement) {
@@ -11,8 +11,8 @@ export class LeftPanel {
     this.rootElement.classList.remove('slide-out');
 
     const eltType = element.isNode ? 'node' : 'edge';
-    const tableName = tableFromId(element.getId());
-    const id = indexFromId(element.getId());
+    const tableName = labelFromId(element.getId());
+    const id = rowId(element.getId());
     const graphId = `${tableName}{"ID":${id}}`;
     const properties = `<ul>${Object.entries(element.getData())
       .reduce((acc, [key, value]) => {

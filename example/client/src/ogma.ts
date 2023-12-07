@@ -1,4 +1,4 @@
-import Ogma from "@linkurious/ogma/umd";
+import Ogma from "@linkurious/ogma";
 import { labelFromId } from "@linkurious/ogma-oracle-parser";
 import { showLoader, hideLoader } from './loader';
 import { Connector } from "./graph-fetch";
@@ -97,7 +97,6 @@ export function setupOgma(element: HTMLDivElement) {
       .then(({ nodes, edges }) => {
         const nodeIds = nodes.map(n => n.id);
         const edgeIds = edges.map(e => e.id);
-
         return ogma.addNodes(nodes, { ignoreInvalid: true })
           .then(() => ogma.addEdges(edges, { ignoreInvalid: true }))
           .then(() => {
@@ -105,10 +104,7 @@ export function setupOgma(element: HTMLDivElement) {
             const edges = ogma.getEdges(edgeIds);
             highlighted.add(neighbors);
             highlighted.add(edges);
-            ogma.getNodes().setAttribute('layoutable', false);
-            neighbors.setAttribute('layoutable', true);
             return ogma.layouts.force({ gpu: true });
-
           });
       });
   });

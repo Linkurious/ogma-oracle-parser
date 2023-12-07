@@ -1,19 +1,10 @@
-import express from 'express';
+import { rowId, getRawGraph, labelFromId } from '@linkurious/ogma-oracle-parser';
 import bodyParser from 'body-parser';
-import oracledb, { Connection, Lob } from 'oracledb';
 import cors from 'cors';
+import express from 'express';
+import oracledb from 'oracledb';
 import dbConfig from './config';
-import { indexFromId, parseLob, tableFromId } from '@linkurious/ogma-oracle-parser';
 const { user, password, connectString } = dbConfig;
-
-function getRawGraph<ND = unknown, ED = unknown>(query: string, conn: Connection, pageStart = 0, pageLength = 32000) {
-  return conn.execute<Lob[]>(`SELECT CUST_SQLGRAPH_JSON('${query}', ${pageStart}, ${pageLength}) AS COLUMN_ALIAS FROM DUAL`)
-    .then(result => {
-      const { numResults, nodes, edges } = parseLob(result.rows[0][0]);
-      // TODO: Handle pagination
-      return { nodes, edges };
-    });
-}
 
 
 export default function createApp() {
@@ -28,51 +19,51 @@ export default function createApp() {
       app.use(bodyParser.json());
       app.use(cors());
       app.get('/expand/:id', (req, res) => {
-        const table = tableFromId(req.params.id);
-        const index = indexFromId(req.params.id);
+        const label = labelFromId(req.params.id);
+        const index = rowId(req.params.id);
         const query = `select v, e
           from graph_table (
             openflights_graph
-            match (v1 is ${table})<-[e]->(v2)
+            match (v1 is ${label})-[e]-(v2)
             where (JSON_VALUE(VERTEX_ID(v1), ''$.KEY_VALUE.ID'') = ${index})
             columns (
               VERTEX_ID(v2) as v,
               EDGE_ID(e) as e
               )
           )`;
-        return getRawGraph(query, conn)
-          .then(r => res.json(r));
+        return getRawGraph({ query, conn })
+          .then((r) => res.json(r));
       });
 
       app.get('/node/:id', (req, res) => {
-        const table = tableFromId(req.params.id);
-        const index = indexFromId(req.params.id);
+        const label = labelFromId(req.params.id);
+        const index = rowId(req.params.id);
         const query = `select v
           from graph_table (
             openflights_graph
-            match (v1 is ${table})
+            match (v1 is ${label})
             where (JSON_VALUE(VERTEX_ID(v1), ''$.KEY_VALUE.ID'') = ''${index}'')
             columns (
               VERTEX_ID(v1) as v
             )
           )`;
-        return getRawGraph(query, conn)
-          .then(r => res.json(r));
+        return getRawGraph({ query, conn })
+          .then((r) => res.json(r));
       });
       app.get('/edge/:id', (req, res) => {
-        const table = tableFromId(req.params.id);
-        const index = indexFromId(req.params.id);
+        const label = labelFromId(req.params.id);
+        const index = rowId(req.params.id);
         const query = `select e
           from graph_table (
             openflights_graph
-            match [e1 is ${table}]
+            match ()-[e1 is ${label}]-()
             where (JSON_VALUE(EDGE_ID(e1), ''$.KEY_VALUE.ID'') = ''${index}'')
             columns (
               EDGE_ID(e1) as e
             )
           )`;
-        return getRawGraph(query, conn)
-          .then(r => res.json(r));
+        return getRawGraph({ query, conn })
+          .then((r) => res.json(r));
       });
       app.get('/edges/:type', (req, res) => {
         const query = `select e
@@ -83,8 +74,8 @@ export default function createApp() {
               EDGE_ID(e1) as e
             )
           )`;
-        return getRawGraph(query, conn)
-          .then(r => res.json(r));
+        return getRawGraph({ query, conn })
+          .then((r) => res.json(r));
       });
       app.get('/nodes/:type', (req, res) => {
         const query = `select v
@@ -95,8 +86,8 @@ export default function createApp() {
               VERTEX_ID(v1) as v
             )
           )`;
-        return getRawGraph(query, conn)
-          .then(r => res.json(r));
+        return getRawGraph({ query, conn })
+          .then((r) => res.json(r));
       });
     });
   return app;

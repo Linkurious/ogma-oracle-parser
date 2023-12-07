@@ -21,7 +21,8 @@ export default defineConfig({
   test: {
     coverage: {
       reporter: ['json', 'cobertura'],
-      all: true,
+      include: ['src/**'],
+      exclude: ['**/node_modules/**', 'example/**', 'docs/**'],
       reportsDirectory: 'reports/coverage'
     }
   }

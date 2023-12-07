@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@linkurious/ogma": "^4.5.0",
-    "@linkurious/ogma-oracle-parser": "file:../../",
+    "@linkurious/ogma-oracle-parser": "^1.0.0",
     "axios": "^1.5.1"
   }
 }

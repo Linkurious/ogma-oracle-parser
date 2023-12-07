@@ -3,6 +3,7 @@ sqlcl/
 **/node_modules/
 **/dist/
 example/compose-stack/transform.mjs
+example/**/package-lock.json
 docs/.vitepress/cache
 docs/api
 reports

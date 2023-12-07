@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { getLob } from './LobStub';
-import { OgmaOracleParser, SQLID, parseLob } from '../src';
+import { getConnection, getLob } from './stub';
+import { OgmaOracleParser, SQLID, getRawGraph, parseLob } from '../src';
 describe('parse', () => {
 
   it('Should parse a Lob into a rawGraph', async () => {
@@ -78,5 +78,30 @@ describe('parse', () => {
     expect(edges.map(e => e.id)).deep.equal(edgeids);
     expect(edges.map(e => e.source)).deep.equal(sources);
     expect(edges.map(e => e.target)).deep.equal(targets);
+  });
+
+  it(`should execute query and parse`, async () => {
+    const conn = getConnection();
+
+    const graph = await getRawGraph({
+      query: 'tests/fixtures/tiny-graph.json',
+      conn,
+      pageStart: 0,
+      pageLength: 2,
+      maxResults: 3,
+    });
+    const nodeids = ['AIRPORTS:3', 'AIRPORTS:5', 'AIRPORTS:4',];
+    expect(graph.nodes.map(n => n.id)).deep.equal(nodeids);
+
+    const graph2 = await getRawGraph({
+      query: 'tests/fixtures/tiny-graph.json',
+      conn,
+      pageStart: 0,
+      pageLength: 2,
+      maxResults: 14,
+    });
+    const nodeids2 = ['AIRPORTS:3', 'AIRPORTS:5', 'AIRPORTS:4', 'AIRPORTS:3', 'AIRPORTS:5', 'AIRPORTS:4'];
+    expect(graph2.nodes.map(n => n.id)).deep.equal(nodeids2);
+
   });
 });

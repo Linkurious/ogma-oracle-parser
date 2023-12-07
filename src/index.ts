@@ -148,8 +148,7 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
       if (!lobs.rows) {
         return graph;
       }
-      const lobsPromise = () => this.parseLob<N, E>(lobs.rows![0][0]);
-      const { numResults, nodes, edges } = await lobsPromise();
+      const { numResults, nodes, edges } = await this.parseLob<N, E>(lobs.rows![0][0]);
       hasFinised = pageStart >= numResults;
       pageStart += pageLength;
       graph.nodes.push(...nodes);

@@ -18,12 +18,4 @@ export default defineConfig({
     },
     emptyOutDir: false,
   },
-  test: {
-    coverage: {
-      reporter: ['json', 'cobertura'],
-      include: ['src/**'],
-      exclude: ['**/node_modules/**', 'example/**', 'docs/**'],
-      reportsDirectory: 'reports/coverage'
-    }
-  }
 });

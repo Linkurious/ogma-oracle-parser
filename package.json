@@ -63,6 +63,7 @@
   "publishConfig": {
     "access": "public"
   },
+  "private": false,
   "eslintConfig": {
     "extends": "@linkurious/eslint-config-ogma"
   },

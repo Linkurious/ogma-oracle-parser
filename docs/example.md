@@ -41,7 +41,7 @@ Then:
 
 ```sh
 npm install
-npm run build && npm run start
+npm run start
 ```
 
 You know have an express app that answers to a few routes by querying your SQL database:

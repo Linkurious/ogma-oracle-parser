@@ -88,7 +88,7 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
    * @param param0 The JSON returned by CUST_SQLGRAPH_JSON
    * @returns A [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
    */
-  parse<N = ND, E = ED>({ vertices, edges }: OracleResponse<ND, ED>) {
+  parse<N = ND, E = ED>({ vertices, edges }: OracleResponse<N, E>) {
     const idFn = this.SQLIDtoId;
     return {
       nodes: vertices.map(({ id: sqlid, properties }) => {
@@ -113,7 +113,7 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
    * @returns 
    */
   parseLob<N = ND, E = ED>(lob: Lob) {
-    return readLob<OracleResponse<ND, ED> & { numResults: number; }>(lob)
+    return readLob<OracleResponse<N, E> & { numResults: number; }>(lob)
       .then((result) => ({ ...this.parse<N, E>(result), numResults: result.numResults }));
   }
   /**
@@ -148,7 +148,8 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
       if (!lobs.rows) {
         return graph;
       }
-      const { numResults, nodes, edges } = await this.parseLob<N, E>(lobs.rows[0][0]);
+      const lobsPromise = () => this.parseLob<N, E>(lobs.rows![0][0]);
+      const { numResults, nodes, edges } = await lobsPromise();
       hasFinised = pageStart >= numResults;
       pageStart += pageLength;
       graph.nodes.push(...nodes);
@@ -160,4 +161,7 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
 }
 const parser = new OgmaOracleParser({ SQLIDtoId, SQLIDfromId });
 export default parser;
-export const { parse, parseLob, getRawGraph } = parser;
+
+export const parse = parser.parse.bind(parser);
+export const parseLob = parser.parseLob.bind(parser);
+export const getRawGraph = parser.getRawGraph.bind(parser);

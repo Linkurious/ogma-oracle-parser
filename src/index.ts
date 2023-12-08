@@ -1,4 +1,3 @@
-
 import { RawGraph } from "@linkurious/ogma";
 import { Connection, Lob } from "oracledb";
 import { OracleResponse, ParserOptions, SQLID } from "./types";
@@ -65,6 +64,7 @@ export function readLob<T = unknown>(lob: Lob) {
     });
   });
 }
+
 /**
  * Parser for Oracle SQL Graph
  * @typeParam ND [Node data type](https://doc.linkurious.com/ogma/latest/tutorials/typescript/index.html#data-typing)
@@ -107,6 +107,7 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
       })
     } as RawGraph<N, E>;
   }
+
   /**
    * Read a lob and parse it as [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
    * @param lob 
@@ -116,6 +117,7 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
     return readLob<OracleResponse<N, E> & { numResults: number; }>(lob)
       .then((result) => ({ ...this.parse<N, E>(result), numResults: result.numResults }));
   }
+
   /**
    * Executes a query (wrapped in CUST_SQLGRAPH_JSON) 
    * and returns a [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
@@ -160,7 +162,6 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
 }
 const parser = new OgmaOracleParser({ SQLIDtoId, SQLIDfromId });
 export default parser;
-
 export const parse = parser.parse.bind(parser);
 export const parseLob = parser.parseLob.bind(parser);
 export const getRawGraph = parser.getRawGraph.bind(parser);

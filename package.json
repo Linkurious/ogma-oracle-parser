@@ -16,6 +16,7 @@
     "prebuild": "tsc",
     "build": "vite build",
     "prepack": "npm run build",
+    "lint:ci": "eslint -f checkstyle -o reports/checkstyle.xml --ext ts --ext js src ./tests/**/*.test.ts",
     "docs:api": "typedoc --plugin typedoc-plugin-markdown --out docs/api src/index.ts",
     "postdocs:api": "node scripts/cleanup-md.mjs",
     "predocs:dev": "npm run docs:api",
@@ -63,7 +64,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "private": false,
   "eslintConfig": {
     "extends": "@linkurious/eslint-config-ogma"
   },

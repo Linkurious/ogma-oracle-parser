@@ -1,6 +1,6 @@
 {
   "name": "@linkurious/ogma-oracle-parser",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Parses responses from Oracle graph DB into Ogma format",
   "main": "dist/ogma-oracle-parser.umd.js",
   "module": "dist/ogma-oracle-parser.umd.js",
@@ -16,6 +16,7 @@
     "prebuild": "tsc",
     "build": "vite build",
     "prepack": "npm run build",
+    "lint:ci": "eslint -f checkstyle -o reports/checkstyle.xml --ext ts --ext js src ./tests/**/*.test.ts",
     "docs:api": "typedoc --plugin typedoc-plugin-markdown --out docs/api src/index.ts",
     "postdocs:api": "node scripts/cleanup-md.mjs",
     "predocs:dev": "npm run docs:api",
@@ -29,7 +30,7 @@
     "test:dev": "vitest"
   },
   "author": "Leo Nicolle",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "private": false,
   "typesVersions": {
     "*": {
@@ -63,7 +64,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "private": false,
   "eslintConfig": {
     "extends": "@linkurious/eslint-config-ogma"
   },

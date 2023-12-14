@@ -38,7 +38,7 @@ const sidebar: DefaultTheme.Sidebar = {
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "ogma-oracle-parser",
-  description: "Seamless Ogma and Oracle Property Graph integration",
+  description: "Seamless communication between Ogma and Oracle Property Graphs",
   head: [['link', { rel: 'icon', href: '/ogma-oracle-parser/favicon.ico' }]],
   base: '/ogma-oracle-parser/',
   themeConfig: {

@@ -6,16 +6,16 @@ You have an Oracle SQL database and want to display it as a graph ? Great ! Let'
 
 ## Create your Graph Database
 
-You can have a look at our [example](./example), which allows you to visualize a sample SQL database in minutes with Docker compose.
+You can have a look at our [example](./example), which allows you to visualize a sample property graph in minutes with Docker compose.
 
 Oracle provides great tutorials/resources on how to create your graph database:
 
 - [Tutorial](https://oracle-base.com/articles/23c/sql-property-graphs-and-sql-pgq-23c)
 - [Quick start guide](https://docs.oracle.com/en/database/oracle/property-graph/23.4/spgdg/sql-property-graph.html#GUID-70485837-3FFC-4B1E-AD3E-B9B61AC525A1)
 
-## Add some functions to SQL server
+## Add some functions to Oracle Database 23c
 
-Once you have your database is set, you will need to add [ORA_SQLGRAPH_TO_JSON](https://raw.githubusercontent.com/oracle/apex/23.2/plugins/region/graph-visualization/optional-23c-only/gvt_sqlgraph_to_json.sql) and [CUST_SQLGRAPH_JSON](https://docs.oracle.com/en//database/oracle/property-graph/23.3/spgdg/visualizing-sql-graph-queries-using-apex-graph-visualization-plug.html#GUID-A48C808E-52BD-4E6D-8AB9-4AF88811990D) functions to your SQL server. This will allow you to select vertices/edges in your database in JSON format.
+Once you have your database is set, you will need to add [ORA_SQLGRAPH_TO_JSON](https://raw.githubusercontent.com/oracle/apex/23.2/plugins/region/graph-visualization/optional-23c-only/gvt_sqlgraph_to_json.sql) and [CUST_SQLGRAPH_JSON](https://docs.oracle.com/en//database/oracle/property-graph/23.3/spgdg/visualizing-sql-graph-queries-using-apex-graph-visualization-plug.html#GUID-A48C808E-52BD-4E6D-8AB9-4AF88811990D) functions to your Oracle Database 23c. This will allow you to select vertices/edges in your database in JSON format.
 
 ```sh
 sqlplus -s USER/PASSWORD@localhost:1521/SESSION @/path/to/script/sqlgraph-to-json.sql

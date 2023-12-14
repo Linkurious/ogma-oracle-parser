@@ -15,5 +15,5 @@ hero:
       link: /example
     - theme: alt
       text: API
-      link: /api
+      link: /api/classes/OgmaOracleParser
 ---

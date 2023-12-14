@@ -12,7 +12,7 @@ cd ogma-oracle-graph-db
 
 The simplest way is to use the `docker-compose` file we provide, which will:
 
-- pull the Oracle SQL server image
+- pull the Oracle Database 23c docker image
 - setup the users login/password
 - load a database
 - add the SQL utility functions required by the parser
@@ -22,7 +22,7 @@ cd example/compose-stack
 docker compose up
 ```
 
-And you are done ! You know have a container exposing the port `1521` on which you can execute SQL requests.
+And you are done ! You now have a container exposing the port `1521` on which you can execute SQL requests.
 
 ## Start the server
 
@@ -44,7 +44,7 @@ npm install
 npm run start
 ```
 
-You know have an express app that answers to a few routes by querying your SQL database:
+You now have an express app that answers to a few routes by querying your SQL database:
 
 - `[GET] /nodes/:type` Returns all nodes of a certain type. Type must match with the labels passed in your `CREATE PROPERTY GRAPH` call.
 - `[GET] /edges/:types` Returns all edges of a certain type.
@@ -65,6 +65,6 @@ npm install
 npm run dev
 ```
 
-You know have a frontend running on `http://localhost:5174/` which displays the graph, allows you to look into nodes/edges properties by clicking on it, and expand nodes by double clicking on it.
+You now have a frontend running on `http://localhost:5174/` which displays the graph, allows you to look into nodes/edges properties by clicking on it, and expand nodes by double clicking on it.
 
 Enjoy!

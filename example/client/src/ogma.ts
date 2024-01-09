@@ -67,7 +67,7 @@ export function setupOgma(element: HTMLDivElement) {
       scale: 0.75
     },
     text: {
-      content: n => n.getData('name'),
+      content: n => labelFromId(`${n.getId()}`) === 'CITIE' ? n.getData('CITY') :  n.getData('IATA'),
       size: 15,
       padding: 10,
       minVisibleSize: 2,

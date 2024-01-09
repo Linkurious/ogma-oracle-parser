@@ -4,7 +4,7 @@ We provide a complete example on how to setup your graph database, connect to it
 Let's get started:
 
 ```sh
-git clone https://github.com/Linkurious/ogma-oracle-graph-db
+git clone https://github.com/Linkurious/ogma-oracle-parser.git
 cd ogma-oracle-graph-db
 ```
 

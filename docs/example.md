@@ -15,7 +15,6 @@ The simplest way is to use the `docker-compose` file we provide, which will:
 - pull the Oracle Database 23c docker image
 - setup the users login/password
 - load a database
-- add the SQL utility functions required by the parser
 - create a property graph
 
 But first you will need to unzip the dataset.

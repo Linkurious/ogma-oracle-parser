@@ -1,0 +1,1 @@
+sqlplus -s "/ as sysdba" @/home/oracle/scripts/create-user.sql $GRAPH_USER $GRAPH_PWD

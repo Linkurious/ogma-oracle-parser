@@ -15,7 +15,12 @@ Oracle provides great tutorials/resources on how to create your graph database:
 
 ## Add some functions to Oracle Database 23c
 
-Once you have your database is set, you will need to add [ORA_SQLGRAPH_TO_JSON](https://raw.githubusercontent.com/oracle/apex/23.2/plugins/region/graph-visualization/optional-23c-only/gvt_sqlgraph_to_json.sql) and [CUST_SQLGRAPH_JSON](https://docs.oracle.com/en//database/oracle/property-graph/23.3/spgdg/visualizing-sql-graph-queries-using-apex-graph-visualization-plug.html#GUID-A48C808E-52BD-4E6D-8AB9-4AF88811990D) functions to your Oracle Database 23c. This will allow you to select vertices/edges in your database in JSON format.
+If your server version is below 23.2, you will need to add theese two SQL functions
+
+- [ORA_SQLGRAPH_TO_JSON](https://raw.githubusercontent.com/oracle/apex/23.2/plugins/region/graph-visualization/optional-23c-only/gvt_sqlgraph_to_json.sql)
+- [CUST_SQLGRAPH_JSON](https://docs.oracle.com/en//database/oracle/property-graph/23.3/spgdg/visualizing-sql-graph-queries-using-apex-graph-visualization-plug.html#GUID-A48C808E-52BD-4E6D-8AB9-4AF88811990D)
+
+This will allow you to select vertices/edges in your database in JSON format.
 
 ```sh
 sqlplus -s USER/PASSWORD@localhost:1521/SESSION @/path/to/script/sqlgraph-to-json.sql

@@ -59,7 +59,7 @@ export function setupOgma(element: HTMLDivElement) {
     container: element,
   });
   ogma.styles.addNodeRule({
-    color: node => labelFromId(`${node.getId()}`) === 'CITIE' ? 'red' : 'blue',
+    color: node => labelFromId(`${node.getId()}`) === 'CITIE' ? '#dbd3ad' : '#d36060',
     icon: {
       font: fontName,
       color: 'white',

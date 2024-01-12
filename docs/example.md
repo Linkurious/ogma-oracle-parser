@@ -5,7 +5,7 @@ Let's get started:
 
 ```sh
 git clone https://github.com/Linkurious/ogma-oracle-parser.git
-cd ogma-oracle-graph-db
+cd ogma-oracle-parser
 ```
 
 ## Setup the Database
@@ -16,9 +16,13 @@ The simplest way is to use the `docker-compose` file we provide, which will:
 - setup the users login/password
 - load a database
 - add the SQL utility functions required by the parser
+- create a property graph
+
+But first you will need to unzip the dataset.
 
 ```sh
 cd example/compose-stack
+./deflate-db.sh
 docker compose up
 ```
 

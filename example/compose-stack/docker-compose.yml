@@ -6,14 +6,11 @@ services:
     ports:
       - 1521:1521
     environment:
-      - DBA_PWD=$DBA_PWD
-      - USR_PWD=$USR_PWD
       - ORACLE_PWD=$ORACLE_PWD
       - GRAPH_PWD=$GRAPH_PWD
       - GRAPH_USER=$GRAPH_USER
     volumes:
       - oracle_data:/opt/oracle/oradata
-      - ./setup:/opt/oracle/scripts/setup
       - ./startup:/opt/oracle/scripts/startup
       - ./dataset:/home/oracle/dataset:rw
       - ./scripts:/home/oracle/scripts

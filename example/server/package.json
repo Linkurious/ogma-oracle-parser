@@ -23,7 +23,7 @@
     "node": ">=6.9.0"
   },
   "dependencies": {
-    "@linkurious/ogma-oracle-parser": "^1.0.0-develop.13",
+    "@linkurious/ogma-oracle-parser": "^1.0.0",
     "bluebird": "^3.7.2",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",

@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@linkurious/ogma": "4.6.6",
-    "@linkurious/ogma-oracle-parser": "1.0.0-develop.12",
+    "@linkurious/ogma-oracle-parser": "1.0.0",
     "axios": "^1.5.1"
   }
 }

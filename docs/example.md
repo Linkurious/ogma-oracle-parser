@@ -1,6 +1,6 @@
 # Example
 
-We provide a complete example on how to setup your graph database, connect to it, retrieve elements and display them in Ogma. And the best is that you can make it work in minutes.
+We provide a complete example on how to setup your Oracle Database as a graph database, connect to it, retrieve elements and display them in Ogma. And the best is that you can make it work in minutes.
 Let's get started:
 
 ```sh
@@ -14,7 +14,7 @@ The simplest way is to use the `docker-compose` file we provide, which will:
 
 - pull the Oracle Database 23ai container image
 - setup the users login/password
-- load a database
+- load a sample data set
 - create a property graph
 
 But first you will need to unzip the dataset.
@@ -25,7 +25,7 @@ cd example/compose-stack
 docker compose up
 ```
 
-And you are done ! You now have a container exposing the port `1521` on which you can execute SQL requests.
+And you are done ! You now have a container exposing the standard Oracle Database port `1521` on which you can execute SQL requests.
 
 ## Start the server
 

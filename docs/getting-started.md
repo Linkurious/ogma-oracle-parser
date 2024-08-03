@@ -1,10 +1,8 @@
----
-outline: deep
----
+# Getting Started
 
 You have an Oracle Database 23ai and want to display SQL Property Graphs? Great! Let's see how to achieve that with [Ogma](https://doc.linkurious.com/ogma/latest/), a powerful and blazing fast graph visualization library.
 
-## Create your Graph Database
+## Create your Oracle Database 23ai Free instance
 
 You can have a look at our [example](./example), which allows you to visualize a sample property graph in minutes using Podman.
 
@@ -29,7 +27,7 @@ Additionally, in order to provide a SQL graph query cursor to the sample applica
 sqlplus -s USER/PASSWORD@localhost:1521/SESSION @/path/to/script/cust-sqlgraph-json.sql
 ```
 
-## Retrieve your nodes/edges from the Database in Node.js
+## Retrieve your nodes/edges from the database in Node.js
 
 First, install the Ogma, the Oracle Database 23ai connector and ogma-oracle-parser:
 
@@ -141,7 +139,7 @@ Now, what you get is this:
 }
 ```
 
-Where `vlabel` and `elabel` are the labels you have passed to SQL in your `CREATE PROPERTY GRAPH` call. `-id` is the id of your element in the table.
+Where `vlabel` and `elabel` are the labels you have passed to SQL in your `CREATE PROPERTY GRAPH` call. `-id` is the ID of your element in the table.
 And that's it ! You now have retrieved nodes and edges in the [Ogma format](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
 
 The plugin also provides a [getRawGraph](/api/classes/OgmaOracleParser.html#getrawgraph) function that does all the work for you. You can use it like this:
@@ -190,7 +188,7 @@ axios.get("http://url-to-node-server:port/nodes/VLABEL").then(({ data }) => {
 
 And you are done !
 
-## Customize your nodes/edges IDs
+## Customize your node/edge IDs
 
 By default, the plugin transforms the `label:{"ID": id}` into `label-id`.
 You can customize this behaviour by creating an instance of the [OgmaOracleParser](/api/classes/OgmaOracleParser.html#constructors) class"
@@ -207,7 +205,7 @@ const { parse, parseLob, getRawGraph } = new OgmaOracleParser({
 });
 ```
 
-## Node and Edge data types
+## Node and edge data types
 
 You can type the data of your nodes and edges by passing [ND](/api/classes/OgmaOracleParser.html#type-parameters) and [ED](/api/classes/OgmaOracleParser.html#type-parameters) value in the `OgmaOracleParser` constructor:
 

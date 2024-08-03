@@ -6,7 +6,7 @@ You have an Oracle Database 23ai and want to display SQL Property Graphs? Great!
 
 You can have a look at our [example](./example), which allows you to visualize a sample property graph in minutes using Podman.
 
-Oracle provides great tutorials/resources on how to create your graph database:
+Oracle provides great tutorials/resources on how to create Property Graphs in your Oracle Database:
 
 - [Tutorial](https://oracle-base.com/articles/23c/sql-property-graphs-and-sql-pgq-23c)
 - [Quick Start guide for working with SQL Property Graphs](https://docs.oracle.com/en/database/oracle/property-graph/23.4/spgdg/sql-property-graph.html)

@@ -2,56 +2,42 @@
 outline: deep
 ---
 
-You have an Oracle SQL database and want to display it as a graph ? Great ! Let's see how to achieve that with [Ogma](https://doc.linkurious.com/ogma/latest/), a powerful and blazing fast graph visualization library.
+You have an Oracle Database 23ai and want to display SQL Property Graphs? Great! Let's see how to achieve that with [Ogma](https://doc.linkurious.com/ogma/latest/), a powerful and blazing fast graph visualization library.
 
 ## Create your Graph Database
 
-You can have a look at our [example](./example), which allows you to visualize a sample property graph in minutes with Docker compose.
+You can have a look at our [example](./example), which allows you to visualize a sample property graph in minutes using Podman.
 
 Oracle provides great tutorials/resources on how to create your graph database:
 
 - [Tutorial](https://oracle-base.com/articles/23c/sql-property-graphs-and-sql-pgq-23c)
-- [Quick start guide](https://docs.oracle.com/en/database/oracle/property-graph/23.4/spgdg/sql-property-graph.html#GUID-70485837-3FFC-4B1E-AD3E-B9B61AC525A1)
+- [Quick Start guide for working with SQL Property Graphs](https://docs.oracle.com/en/database/oracle/property-graph/23.4/spgdg/sql-property-graph.html)
 
-## Add some functions to Oracle Database 23c
+## Add some functions to Oracle Database 23ai
 
-If your server version is below 23.2, you will need to add theese two SQL functions
-
-- [ORA_SQLGRAPH_TO_JSON](https://raw.githubusercontent.com/oracle/apex/23.2/plugins/region/graph-visualization/optional-23c-only/gvt_sqlgraph_to_json.sql)
-- [CUST_SQLGRAPH_JSON](https://docs.oracle.com/en//database/oracle/property-graph/23.3/spgdg/visualizing-sql-graph-queries-using-apex-graph-visualization-plug.html#GUID-A48C808E-52BD-4E6D-8AB9-4AF88811990D)
-
-This will allow you to select vertices/edges in your database in JSON format.
+OGMA accepts the result set from SQL graph query (returned nodes, edges, and their properties) in JSON format only. This is supported by the `ORA_SQLGRAPH_TO_JSON` PL/SQL function, which is created using the following code:
 
 ```sh
-sqlplus -s USER/PASSWORD@localhost:1521/SESSION @/path/to/script/sqlgraph-to-json.sql
+sqlplus -s USER/PASSWORD@localhost:1521/SESSION @/path/to/script/gvt-sqlgraph-to-json.sql
 ```
 
-```sql
-CREATE OR REPLACE FUNCTION CUST_SQLGRAPH_JSON (
-  QUERY VARCHAR2
-) RETURN CLOB
-  AUTHID CURRENT_USER IS
-  INCUR    SYS_REFCURSOR;
-  L_CUR    NUMBER;
-  RETVALUE CLOB;
-BEGIN
-  OPEN INCUR FOR QUERY;
-  L_CUR := DBMS_SQL.TO_CURSOR_NUMBER(INCUR);
-  RETVALUE := ORA_SQLGRAPH_TO_JSON(L_CUR);
-  DBMS_SQL.CLOSE_CURSOR(L_CUR);
-  RETURN RETVALUE;
-END;
+It is the same code to [visualize SQL Property Graphs in Oracle Application Express](https://docs.oracle.com/en//database/oracle/property-graph/23.4/spgdg/getting-started-apex-graph-visualization-plug.html#GUID-22E17FA8-7808-47C2-B1ED-54842FA43A2A).
+
+Additionally, in order to provide a SQL graph query cursor to the sample application, you need to create the following helper function:
+
+```sh
+sqlplus -s USER/PASSWORD@localhost:1521/SESSION @/path/to/script/cust-sqlgraph-json.sql
 ```
 
-## Retrieve your nodes/edges from the Databse in NodeJS
+## Retrieve your nodes/edges from the Database in Node.js
 
-First, install the ogma, the oracle connector and ogma-oracle-parser:
+First, install the Ogma, the Oracle Database 23ai connector and ogma-oracle-parser:
 
 ```sh
 npm i oracledb @linkurious/ogma @linkurious/ogma-oracle-parser
 ```
 
-Create your connection:
+Create your DB connection:
 
 ```ts
 const connectString = host + ":" + port + "/" + service;
@@ -100,7 +86,7 @@ You can see that the result should look like
 }
 ```
 
-Now, we can use the `CUST_SQLGRAPH_JSON` to retrieve vertives/edges data from the ids we got from the previous request:
+Now, we can use the `CUST_SQLGRAPH_JSON` to retrieve nodes/edges data from the IDs we got from the previous request:
 
 ```ts
 import { parseLob } from "@linkurious/ogma-oracle-parser";
@@ -204,7 +190,7 @@ axios.get("http://url-to-node-server:port/nodes/VLABEL").then(({ data }) => {
 
 And you are done !
 
-## Customize your nodes/edges ids
+## Customize your nodes/edges IDs
 
 By default, the plugin transforms the `label:{"ID": id}` into `label-id`.
 You can customize this behaviour by creating an instance of the [OgmaOracleParser](/api/classes/OgmaOracleParser.html#constructors) class"

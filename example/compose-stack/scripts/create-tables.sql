@@ -1,34 +1,44 @@
-DROP TABLE IF EXISTS OPENFLIGHTS_AIRPORTS;
-CREATE TABLE OPENFLIGHTS_AIRPORTS (
-  ID number,
-  NAME varchar2 (100),
-  IATA varchar2 (10),
-  ICAO varchar2 (10),
-  LATITUDE number,
-  LONGITUDE number,
-  ALTITUDE number,
-  TIMEZONE number,
-  DST varchar2 (10),
-  TZDBTIME varchar2 (100),
-  AIRPORT_TYPE varchar2 (100),
-  SOURCE varchar2 (100),
-  CITY_ID number
+drop table if exists openflights_airports;
+create table openflights_airports (
+  id number,
+  name varchar2 (100),
+  iata varchar2 (10),
+  icao varchar2 (10),
+  latitude number,
+  longitude number,
+  altitude number,
+  timezone number,
+  dst varchar2 (10),
+  tzdbtime varchar2 (100),
+  airport_type varchar2 (100),
+  source varchar2 (100),
+  city_id number
 );
-DROP TABLE IF EXISTS OPENFLIGHTS_CITIES;
-CREATE TABLE OPENFLIGHTS_CITIES (
-  ID number,
-  COUNTRY varchar(100),
-  CITY varchar(100)
+drop table if exists openflights_cities;
+create table openflights_cities (
+  id number,
+  country varchar(100),
+  city varchar(100)
 );
-DROP TABLE IF EXISTS OPENFLIGHTS_ROUTES;
-CREATE TABLE OPENFLIGHTS_ROUTES (
-  ID number,
-  AIRLINE_ID number,
-  SRC_AIRPORT_ID number,
-  DEST_AIRPORT_ID number,
-  CODESHARE varchar(100),
-  STOPS number,
-  EQUIPMENT varchar(100),
-  DISTANCE_IN_KM number,
-  DISTANCE_IN_MI number
+drop table if exists openflights_routes;
+create table openflights_routes (
+  id number,
+  airline_id number,
+  src_airport_id number,
+  dest_airport_id number,
+  codeshare varchar(100),
+  stops number,
+  equipment varchar(100),
+  distance_in_km number,
+  distance_in_mi number
 );
+
+-- Add primary keys
+alter table openflights_airports add constraint openflights_airports_pk primary key (id);
+alter table openflights_cities add constraint openflights_cities_pk primary key (id);
+alter table openflights_routes add constraint openflights_routes_pk primary key (id);
+
+-- Add foreign keys
+alter table openflights_airports add constraint openflights_airports_city_fk foreign key (city_id) references openflights_cities(id);
+alter table openflights_routes add constraint openflights_routes_src_airport_fk foreign key (src_airport_id) references openflights_airports(id);
+alter table openflights_routes add constraint openflights_routes_dest_airport_fk foreign key (dest_airport_id) references openflights_airports(id);

@@ -12,7 +12,7 @@ cd ogma-oracle-parser
 
 The simplest way is to use the `docker-compose` file we provide, which will:
 
-- pull the Oracle Database 23c docker image
+- pull the Oracle Database 23ai container image
 - setup the users login/password
 - load a database
 - create a property graph

@@ -10,19 +10,36 @@ cd ogma-oracle-parser
 
 ## Setup the Database
 
-The simplest way is to use the `docker-compose` file we provide, which will:
+### Before you set up the database instance
 
-- pull the Oracle Database 23ai container image
-- setup the users login/password
-- load a sample data set
-- create a property graph
-
-But first you will need to unzip the dataset.
+The compose-stack subfolder contains a curated [OpenFlights](https://openflights.org/) dataset about airports and flights connecting airports. You need to `unzip` the dataset first.
 
 ```sh
 cd example/compose-stack
 ./deflate-db.sh
-docker compose up
+```
+
+### Create the database container using startup scripts
+
+Now, you can use `Podman` to:
+
+- pull the Oracle Database Free 23ai **full** container imagefrom the [Oracle Container Registry](https://container-registry.oracle.com/)
+- setup the DB user login/password
+- load a sample dataset
+- create a property graph on top of the sample dataset
+
+```sh
+podman run -d --name 23aifree \
+ -p 1521:1521 \
+ -e ORACLE_PWD=Welcome_1234# \
+ -e ORACLE_PDB=freepdb1 \
+ -e GRAPH_USER=graphuser \
+ -e GRAPH_PWD=Welcome_1234# \
+ -v oracle_data:/opt/oracle/oradata \
+ -v ./startup:/opt/oracle/scripts/startup \
+ -v ./dataset:/home/oracle/dataset:rw \
+ -v ./scripts:/home/oracle/scripts:rw \
+ container-registry.oracle.com/database/free:latest
 ```
 
 And you are done ! You now have a container exposing the standard Oracle Database port `1521` on which you can execute SQL requests.

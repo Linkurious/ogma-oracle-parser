@@ -5,7 +5,8 @@ Let's get started:
 
 ```sh
 git clone https://github.com/Linkurious/ogma-oracle-parser.git
-cd ogma-oracle-parser
+# git clone https://github.com/karinpatenge/ogma-oracle-parser.git
+tree ogma-oracle-parser
 ```
 
 ## Setup the Database
@@ -15,8 +16,9 @@ cd ogma-oracle-parser
 The `database` subfolder contains a curated [OpenFlights](https://openflights.org/) dataset about airports and flights connecting airports. You need to `unzip` the dataset first.
 
 ```sh
-cd example/database
+cd ogma-oracle-parser/example/database
 ./deflate-db.sh
+ll dataset
 ```
 
 ### Create the database container using startup scripts
@@ -42,14 +44,39 @@ podman run --privileged -d --name 23aifree \
  container-registry.oracle.com/database/free:latest
 ```
 
-Note: It takes about 3-4 minutes to have the container up and running.
+Note: It takes about 3-4 minutes to have the container up and running. Make sure to replace the `ORACLE_PWD` and `GRAPH_PWD` passwords at a later stage.
 
-So, you are done now! You have a container exposing the standard Oracle Database port `1521` on which you can execute SQL requests.
+You can check the container using:
+
+```sh
+podman ps
+podman logs 23aifree
+```
+
+You now have a container running that exposes the standard Oracle Database port `1521` on which you can execute SQL requests. To test the connection to the database, do the following:
+
+```sh
+podman exec -it 23aifree sqlplus pdbadmin/Welcome_1234#@freepdb1
+show user
+select 1
+exit
+```
+
+or as `GRAPH_USER`
+
+```sh
+podman exec -it 23aifree sqlplus graphuser/Welcome_1234#@freepdb1
+show user
+select 1
+exit
+```
+
+Congratulations! You have completed the first step.
 
 ## Start the Server
 
 ```sh
-cd example/server
+cd ~/ogma-oracle-parser/example/server
 ```
 
 You will need to provide your Ogma API key to be able to install Ogma via npm install.

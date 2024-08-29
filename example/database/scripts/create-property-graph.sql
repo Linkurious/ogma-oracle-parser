@@ -8,7 +8,10 @@ create property graph if not exists openflights_graph
          key ( id )
          label airport
          properties ( name, iata, icao, airport_type, longitude, latitude, altitude, timezone, tzdbtime, dst ), 
-      openflights_cities as cities key ( id ) label city properties ( city, country ) ) 
+      openflights_cities as cities key ( id )
+         label city
+         properties ( city, country )
+   )
    edge tables (
       openflights_routes as routes
          source key ( src_airport_id ) references airports (id)
@@ -19,4 +22,5 @@ create property graph if not exists openflights_graph
          source key ( id ) references airports (id)
          destination key ( city_id ) references cities (id)
          label located_in
-         no properties );
+         no properties
+   );

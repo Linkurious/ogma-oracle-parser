@@ -19,7 +19,6 @@ The `database` subfolder contains a curated [OpenFlights](https://openflights.or
 cd ogma-oracle-parser/example/database
 sh ./deflate-db.sh
 ll dataset
-cd ~
 ```
 
 ### Create the database container using startup scripts
@@ -32,6 +31,9 @@ Now, you can use `Podman` to:
 - create a property graph on top of the sample dataset
 
 ```sh
+# Make sure you are in the right directory
+cd ogma-oracle-parser/example/database
+
 # Clean up existing containers
 podman rmi --force -a
 
@@ -62,17 +64,36 @@ You now have a container running that exposes the standard Oracle Database port 
 
 ```sh
 podman exec -it 23aifree sqlplus pdbadmin/Welcome_1234#@freepdb1
+```
+
+```sql
 show user
 select 1;
+```
+
+Logout if everything looks fine.
+
+```sql
 quit
 ```
 
-or as `GRAPH_USER`
+As `GRAPH_USER` you can check that the property graph was created:
 
 ```sh
 podman exec -it 23aifree sqlplus graphuser/Welcome_1234#@freepdb1
-show user
-select 1;
+```
+
+```sql
+select * from graph_table (
+   openflights_graph
+   match (a is airport)-[e]->(b is city)
+   columns (a.name as airport, a.iata as iata, b.city as city)
+);
+```
+
+Logout if everything looks fine.
+
+```sql
 quit
 ```
 

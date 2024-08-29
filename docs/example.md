@@ -102,6 +102,7 @@ Congratulations! You have completed the first step.
 ## Start the Server
 
 ```sh
+# Make sure you are in the right directory
 cd ~/ogma-oracle-parser/example/server
 ```
 
@@ -110,8 +111,6 @@ Either by modifying the `package.json`, either by running:
 
 ```sh
 npm install --save https://get.linkurio.us/api/get/npm/ogma/<VERSION>/?secret=<YOUR_API_KEY>
-
-npm install --save https://get.linkurio.us/api/get/npm/ogma/5.1.4/?secret=lk-dls-12c45a9746d6edf15797b0808071395dc9c89e335
 ```
 
 Then:

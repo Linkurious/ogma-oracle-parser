@@ -32,7 +32,6 @@ Now, you can use `Podman` to:
 - create a property graph on top of the sample dataset
 
 ```sh
-
 # Clean up existing containers
 podman rmi --force -a
 

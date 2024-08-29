@@ -17,8 +17,9 @@ The `database` subfolder contains a curated [OpenFlights](https://openflights.or
 
 ```sh
 cd ogma-oracle-parser/example/database
-./deflate-db.sh
+sh ./deflate-db.sh
 ll dataset
+cd ~
 ```
 
 ### Create the database container using startup scripts
@@ -58,8 +59,8 @@ You now have a container running that exposes the standard Oracle Database port 
 ```sh
 podman exec -it 23aifree sqlplus pdbadmin/Welcome_1234#@freepdb1
 show user
-select 1
-exit
+select 1;
+quit
 ```
 
 or as `GRAPH_USER`
@@ -67,8 +68,8 @@ or as `GRAPH_USER`
 ```sh
 podman exec -it 23aifree sqlplus graphuser/Welcome_1234#@freepdb1
 show user
-select 1
-exit
+select 1;
+quit
 ```
 
 Congratulations! You have completed the first step.
@@ -84,6 +85,8 @@ Either by modifying the `package.json`, either by running:
 
 ```sh
 npm install --save https://get.linkurio.us/api/get/npm/ogma/<VERSION>/?secret=<YOUR_API_KEY>
+
+npm install --save https://get.linkurio.us/api/get/npm/ogma/5.1.4/?secret=lk-dls-12c45a9746d6edf15797b0808071395dc9c89e335
 ```
 
 Then:

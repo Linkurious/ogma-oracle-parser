@@ -32,6 +32,11 @@ Now, you can use `Podman` to:
 - create a property graph on top of the sample dataset
 
 ```sh
+
+# Clean up existing containers
+podman rmi --force -a
+
+# Pull a new Oracle Database 23ai Free container image
 podman run --privileged -d --name 23aifree \
  -p 1521:1521 \
  -e ORACLE_PWD=Welcome_1234# \

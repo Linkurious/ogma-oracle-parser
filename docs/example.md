@@ -32,7 +32,7 @@ Now, you can use `Podman` to:
 
 ```sh
 # Make sure you are in the right directory
-cd ogma-oracle-parser/example/database
+cd ~/ogma-oracle-parser/example/database
 
 # Clean up existing containers
 podman rmi --force -a
@@ -68,6 +68,7 @@ podman exec -it 23aifree sqlplus pdbadmin/Welcome_1234#@freepdb1
 
 ```sql
 show user
+
 select 1;
 ```
 
@@ -88,7 +89,8 @@ select * from graph_table (
    openflights_graph
    match (a is airport)-[e]->(b is city)
    columns (a.name as airport, a.iata as iata, b.city as city)
-);
+)
+fetch first 10 rows only;
 ```
 
 Logout if everything looks fine.
@@ -130,17 +132,33 @@ You now have an express app that answers to a few routes by querying your SQL da
 
 ## Start the Frontend
 
+Open a new SSH connection to your compute instance.
+
 ```sh
-cd example/client
+# Make sure you are in the right directory
+cd ~/ogma-oracle-parser/example/client
 ```
 
 Same as for server, you will need to install Ogma by providing your `API_KEY`. Then you can just proceed:
+
+```sh
+npm install --save https://get.linkurio.us/api/get/npm/ogma/<VERSION>/?secret=<YOUR_API_KEY>
+```
+
+Then:
 
 ```sh
 npm install
 npm run dev
 ```
 
-You now have a frontend running on `http://localhost:5174/`. It displays the graph. You can check the properties of nodes and edges properties by clicking on the node or edge. A double-click on a node expands it with one hop.
+Alternately, if you want to expose the client app from remote, then:
+
+```sh
+npm install
+npm run dev -- --host
+```
+
+You now have a frontend running on `http://<host>:5173/`. It displays the graph. You can check the properties of nodes and edges properties by clicking on the node or edge. A double-click on a node expands it with one hop.
 
 Enjoy!

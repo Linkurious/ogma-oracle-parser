@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 config();
 const env = process.env.NODE_ENV || 'dev';
-let host = '';
+let host = '158.180.61.130';
 let user = '';
 let password = '';
 

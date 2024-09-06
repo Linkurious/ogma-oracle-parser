@@ -11,21 +11,14 @@ Oracle provides great tutorials/resources on how to create Property Graphs in yo
 - [Tutorial](https://oracle-base.com/articles/23c/sql-property-graphs-and-sql-pgq-23c)
 - [Quick Start guide for working with SQL Property Graphs](https://docs.oracle.com/en/database/oracle/property-graph/23.4/spgdg/sql-property-graph.html)
 
-## Add some functions to Oracle Database 23ai
+## Functions in Oracle Database 23ai to return graph query results as JSON
 
-OGMA accepts the result set from SQL graph query (returned nodes, edges, and their properties) in JSON format only. This is supported by the `ORA_SQLGRAPH_TO_JSON` PL/SQL function, which is created using the following code:
+OGMA accepts the result set from SQL graph query (returned nodes, edges, and their properties) in JSON format only. The transformation to JSON relies on the [DBMS_GVT PL/SQL package available on GitHub](https://github.com/oracle/apex/blob/23.2/plugins/region/graph-visualization/optional-23ai-only/gvt_sqlgraph_to_json.sql).  The package and a  PL/SQL helper function, `CUST_SQLGRAPH_JSON`, are created upon the creation of the Oracle Database container. (See the [scripts in this folder](./example/database/scripts)).
 
-```sh
-sqlplus -s USER/PASSWORD@localhost:1521/SESSION @/path/to/script/gvt-sqlgraph-to-json.sql
-```
+`GVT` is the abbreviation for `Graph Visualization Toolkit`. Details are available in:
 
-It is the same code to [visualize SQL Property Graphs in Oracle Application Express](https://docs.oracle.com/en//database/oracle/property-graph/23.4/spgdg/getting-started-apex-graph-visualization-plug.html#GUID-22E17FA8-7808-47C2-B1ED-54842FA43A2A).
-
-Additionally, in order to provide a SQL graph query cursor to the sample application, you need to create the following helper function:
-
-```sh
-sqlplus -s USER/PASSWORD@localhost:1521/SESSION @/path/to/script/cust-sqlgraph-json.sql
-```
+- [Oracle Developer´s Guide for Property Graph](https://docs.oracle.com/en/database/oracle/property-graph/24.3/spgdg/visualizing-sql-graph-queries-using-apex-graph-visualization-plug.html)
+- [Oracle Graph JavaScript API Reference for Property Graph Visualization](https://docs.oracle.com/en/database/oracle/property-graph/23.4/pgjsd/index.html).
 
 ## Retrieve your nodes/edges from the database in Node.js
 

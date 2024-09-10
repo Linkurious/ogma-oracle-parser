@@ -1,27 +1,38 @@
-import { rowId, getRawGraph, labelFromId } from '@linkurious/ogma-oracle-parser';
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import express from 'express';
-import oracledb from 'oracledb';
-import dbConfig from './config';
+import {
+  rowId,
+  getRawGraph,
+  labelFromId,
+} from "@linkurious/ogma-oracle-parser";
+import bodyParser from "body-parser";
+import cors from "cors";
+import express from "express";
+import oracledb from "oracledb";
+import dbConfig from "./config";
+import path from "path";
+
 const { user, password, connectString } = dbConfig;
 
-const labelMap = new Map([[
-  'CITIE', 'CITY',
-]]);
+const labelMap = new Map([["CITIE", "CITY"]]);
 export default function createApp() {
   const app = express();
-  oracledb.getConnection({
-    user,
-    password,
-    connectString,
-  })
+  oracledb
+    .getConnection({
+      user,
+      password,
+      connectString,
+    })
     .then((conn) => {
       app.use(bodyParser.urlencoded({ extended: true }));
       app.use(bodyParser.json());
-      app.use(cors());
-      app.get('/expand/:id', (req, res) => {
-        const label = labelMap.get(labelFromId(req.params.id)) || labelFromId(req.params.id);
+      app.use(
+        cors({
+          origin: "*",
+        })
+      );
+      app.get("/expand/:id", (req, res) => {
+        const label =
+          labelMap.get(labelFromId(req.params.id)) ||
+          labelFromId(req.params.id);
         const index = rowId(req.params.id);
         const query = `select v, e
           from graph_table (
@@ -33,11 +44,10 @@ export default function createApp() {
               EDGE_ID(e) as e
               )
           )`;
-        return getRawGraph({ query, conn })
-          .then((r) => res.json(r));
+        return getRawGraph({ query, conn }).then((r) => res.json(r));
       });
 
-      app.get('/node/:id', (req, res) => {
+      app.get("/node/:id", (req, res) => {
         const label = labelFromId(req.params.id);
         const index = rowId(req.params.id);
         const query = `select v
@@ -49,10 +59,9 @@ export default function createApp() {
               VERTEX_ID(v1) as v
             )
           )`;
-        return getRawGraph({ query, conn })
-          .then((r) => res.json(r));
+        return getRawGraph({ query, conn }).then((r) => res.json(r));
       });
-      app.get('/edge/:id', (req, res) => {
+      app.get("/edge/:id", (req, res) => {
         const label = labelFromId(req.params.id);
         const index = rowId(req.params.id);
         const query = `select e
@@ -64,12 +73,13 @@ export default function createApp() {
               EDGE_ID(e1) as e
             )
           )`;
-        return getRawGraph({ query, conn })
-          .then((r) => res.json(r));
+        return getRawGraph({ query, conn }).then((r) => res.json(r));
       });
-      app.get('/edges/:type/:pageStart?/:pageLength?/:maxResults?', (req, res) => {
-        const { type, pageStart, pageLength, maxResults } = req.params;
-        const query = `select e
+      app.get(
+        "/edges/:type/:pageStart?/:pageLength?/:maxResults?",
+        (req, res) => {
+          const { type, pageStart, pageLength, maxResults } = req.params;
+          const query = `select e
           from graph_table (
             openflights_graph
             match ()-[e1 is ${type}]-()
@@ -78,10 +88,16 @@ export default function createApp() {
             )
           )`;
 
-        return getRawGraph({ query, conn, maxResults: +maxResults, pageStart: +pageStart, pageLength: +pageLength })
-          .then((r) => res.json(r));
-      });
-      app.get('/nodes/:type', (req, res) => {
+          return getRawGraph({
+            query,
+            conn,
+            maxResults: +maxResults,
+            pageStart: +pageStart,
+            pageLength: +pageLength,
+          }).then((r) => res.json(r));
+        }
+      );
+      app.get("/nodes/:type", (req, res) => {
         const query = `select v
           from graph_table (
             openflights_graph
@@ -90,10 +106,8 @@ export default function createApp() {
               VERTEX_ID(v1) as v
             )
           )`;
-        return getRawGraph({ query, conn })
-          .then((r) => res.json(r));
+        return getRawGraph({ query, conn }).then((r) => res.json(r));
       });
     });
   return app;
 }
-

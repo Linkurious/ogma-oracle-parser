@@ -1,57 +1,34 @@
----
-outline: deep
----
+# Getting Started
 
-You have an Oracle SQL database and want to display it as a graph ? Great ! Let's see how to achieve that with [Ogma](https://doc.linkurious.com/ogma/latest/), a powerful and blazing fast graph visualization library.
+You have an Oracle Database 23ai and want to display SQL Property Graphs? Great! Let's see how to achieve that with [Ogma](https://doc.linkurious.com/ogma/latest/), a powerful and blazing fast graph visualization library.
 
-## Create your Graph Database
+## Create your Oracle Database 23ai Free instance
 
-You can have a look at our [example](./example), which allows you to visualize a sample property graph in minutes with Docker compose.
+You can have a look at our [example](./example), which allows you to visualize a sample property graph in minutes using Podman.
 
-Oracle provides great tutorials/resources on how to create your graph database:
+Oracle provides great tutorials/resources on how to create Property Graphs in your Oracle Database:
 
 - [Tutorial](https://oracle-base.com/articles/23c/sql-property-graphs-and-sql-pgq-23c)
-- [Quick start guide](https://docs.oracle.com/en/database/oracle/property-graph/23.4/spgdg/sql-property-graph.html#GUID-70485837-3FFC-4B1E-AD3E-B9B61AC525A1)
+- [Quick Start guide for working with SQL Property Graphs](https://docs.oracle.com/en/database/oracle/property-graph/23.4/spgdg/sql-property-graph.html)
 
-## Add some functions to Oracle Database 23c
+## Functions in Oracle Database 23ai to return graph query results as JSON
 
-If your server version is below 23.2, you will need to add theese two SQL functions
+OGMA accepts the result set from SQL graph query (returned nodes, edges, and their properties) in JSON format only. The transformation to JSON relies on the [DBMS_GVT PL/SQL package available on GitHub](https://github.com/oracle/apex/blob/23.2/plugins/region/graph-visualization/optional-23ai-only/gvt_sqlgraph_to_json.sql).  The package and a  PL/SQL helper function, `CUST_SQLGRAPH_JSON`, are created upon the creation of the Oracle Database container. (See the [scripts in this folder](./example/database/scripts)).
 
-- [ORA_SQLGRAPH_TO_JSON](https://raw.githubusercontent.com/oracle/apex/23.2/plugins/region/graph-visualization/optional-23c-only/gvt_sqlgraph_to_json.sql)
-- [CUST_SQLGRAPH_JSON](https://docs.oracle.com/en//database/oracle/property-graph/23.3/spgdg/visualizing-sql-graph-queries-using-apex-graph-visualization-plug.html#GUID-A48C808E-52BD-4E6D-8AB9-4AF88811990D)
+`GVT` is the abbreviation for `Graph Visualization Toolkit`. Details are available in:
 
-This will allow you to select vertices/edges in your database in JSON format.
+- [Oracle Developer´s Guide for Property Graph](https://docs.oracle.com/en/database/oracle/property-graph/24.3/spgdg/visualizing-sql-graph-queries-using-apex-graph-visualization-plug.html)
+- [Oracle Graph JavaScript API Reference for Property Graph Visualization](https://docs.oracle.com/en/database/oracle/property-graph/23.4/pgjsd/index.html).
 
-```sh
-sqlplus -s USER/PASSWORD@localhost:1521/SESSION @/path/to/script/sqlgraph-to-json.sql
-```
+## Retrieve your nodes/edges from the database in Node.js
 
-```sql
-CREATE OR REPLACE FUNCTION CUST_SQLGRAPH_JSON (
-  QUERY VARCHAR2
-) RETURN CLOB
-  AUTHID CURRENT_USER IS
-  INCUR    SYS_REFCURSOR;
-  L_CUR    NUMBER;
-  RETVALUE CLOB;
-BEGIN
-  OPEN INCUR FOR QUERY;
-  L_CUR := DBMS_SQL.TO_CURSOR_NUMBER(INCUR);
-  RETVALUE := ORA_SQLGRAPH_TO_JSON(L_CUR);
-  DBMS_SQL.CLOSE_CURSOR(L_CUR);
-  RETURN RETVALUE;
-END;
-```
-
-## Retrieve your nodes/edges from the Databse in NodeJS
-
-First, install the ogma, the oracle connector and ogma-oracle-parser:
+First, install the Ogma, the Oracle Database 23ai connector and ogma-oracle-parser:
 
 ```sh
 npm i oracledb @linkurious/ogma @linkurious/ogma-oracle-parser
 ```
 
-Create your connection:
+Create your DB connection:
 
 ```ts
 const connectString = host + ":" + port + "/" + service;
@@ -100,7 +77,7 @@ You can see that the result should look like
 }
 ```
 
-Now, we can use the `CUST_SQLGRAPH_JSON` to retrieve vertives/edges data from the ids we got from the previous request:
+Now, we can use the `CUST_SQLGRAPH_JSON` to retrieve nodes/edges data from the IDs we got from the previous request:
 
 ```ts
 import { parseLob } from "@linkurious/ogma-oracle-parser";
@@ -155,7 +132,7 @@ Now, what you get is this:
 }
 ```
 
-Where `vlabel` and `elabel` are the labels you have passed to SQL in your `CREATE PROPERTY GRAPH` call. `-id` is the id of your element in the table.
+Where `vlabel` and `elabel` are the labels you have passed to SQL in your `CREATE PROPERTY GRAPH` call. `-id` is the ID of your element in the table.
 And that's it ! You now have retrieved nodes and edges in the [Ogma format](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
 
 The plugin also provides a [getRawGraph](/api/classes/OgmaOracleParser.html#getrawgraph) function that does all the work for you. You can use it like this:
@@ -204,7 +181,7 @@ axios.get("http://url-to-node-server:port/nodes/VLABEL").then(({ data }) => {
 
 And you are done !
 
-## Customize your nodes/edges ids
+## Customize your node/edge IDs
 
 By default, the plugin transforms the `label:{"ID": id}` into `label-id`.
 You can customize this behaviour by creating an instance of the [OgmaOracleParser](/api/classes/OgmaOracleParser.html#constructors) class"
@@ -221,7 +198,7 @@ const { parse, parseLob, getRawGraph } = new OgmaOracleParser({
 });
 ```
 
-## Node and Edge data types
+## Node and edge data types
 
 You can type the data of your nodes and edges by passing [ND](/api/classes/OgmaOracleParser.html#type-parameters) and [ED](/api/classes/OgmaOracleParser.html#type-parameters) value in the `OgmaOracleParser` constructor:
 

@@ -5,7 +5,6 @@ Let's get started:
 
 ```sh
 git clone https://github.com/Linkurious/ogma-oracle-parser.git
-# git clone https://github.com/karinpatenge/ogma-oracle-parser.git
 tree ogma-oracle-parser
 ```
 

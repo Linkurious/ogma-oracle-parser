@@ -8,6 +8,8 @@ import cors from "cors";
 import express from "express";
 import oracledb from "oracledb";
 import dbConfig from "./config";
+import path from "path";
+
 const { user, password, connectString } = dbConfig;
 
 const labelMap = new Map([["CITIE", "CITY"]]);

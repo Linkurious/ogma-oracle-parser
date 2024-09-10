@@ -1,11 +1,11 @@
-import { config } from 'dotenv';
+import { config } from "dotenv";
 config();
-const env = process.env.NODE_ENV || 'dev';
-let host = '158.180.61.130';
-let user = '';
-let password = '';
+const env = process.env.NODE_ENV || "dev";
+let host = "";
+let user = "";
+let password = "";
 
-if (env === 'dev') {
+if (env === "dev") {
   host = process.env.DB_HOST_DEV!;
   user = process.env.DB_USER_DEV!;
   password = process.env.DB_PASS_DEV!;
@@ -16,7 +16,7 @@ if (env === 'dev') {
 }
 const port = process.env.DB_PORT;
 const service = process.env.DB_SERVICE;
-const connectString = host + ':' + port + '/' + service;
+const connectString = host + ":" + port + "/" + service;
 
 const dbConfig = {
   user: user,
@@ -25,4 +25,3 @@ const dbConfig = {
 };
 
 export default dbConfig;
-

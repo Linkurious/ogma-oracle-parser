@@ -7,9 +7,8 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
 import oracledb from "oracledb";
-import dbConfig from "./config";
 import path from "path";
-
+import dbConfig from "./config";
 const { user, password, connectString } = dbConfig;
 
 const labelMap = new Map([["CITIE", "CITY"]]);
@@ -108,6 +107,7 @@ export default function createApp() {
           )`;
         return getRawGraph({ query, conn }).then((r) => res.json(r));
       });
+      app.use(express.static(path.resolve("../../client/dist")));
     });
   return app;
 }

@@ -1,16 +1,15 @@
 // dummy icon element to retrieve the HEX code
-const placeholder = document.getElementById('icon-placeholder');
-placeholder.style.visibility = 'hidden';
+const placeholder = document.getElementById("icon-placeholder")!;
+placeholder.style.visibility = "hidden";
 
 // helper routine to get the icon HEX code
-const getIconCode = className => {
+const getIconCode = (className: string) => {
   placeholder.className = className;
-  const code = getComputedStyle(placeholder, ':before').content;
+  const code = getComputedStyle(placeholder, ":before").content;
   return code;
 };
 
-
 export const icons = {
-  AIRPORTS: getIconCode('fa-solid fa-plane'),
-  CITIES: getIconCode('fa-solid fa-city'),
-}
+  AIRPORTS: getIconCode("fa-solid fa-plane"),
+  CITIES: getIconCode("fa-solid fa-city"),
+};

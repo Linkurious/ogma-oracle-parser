@@ -1,17 +1,20 @@
 import {
-  rowId,
   getRawGraph,
   labelFromId,
+  rowId,
 } from "@linkurious/ogma-oracle-parser";
 import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
 import oracledb from "oracledb";
-import path from "path";
 import dbConfig from "./config";
 const { user, password, connectString } = dbConfig;
 
-const labelMap = new Map([["CITIE", "CITY"]]);
+const labelMap = new Map([
+  ["CITIES", "CITY"],
+  ["ROUTES", "ROUTE"],
+  ["AIRPORTS", "AIRPORT"],
+]);
 export default function createApp() {
   const app = express();
   oracledb
@@ -34,7 +37,7 @@ export default function createApp() {
           labelFromId(req.params.id);
         const index = rowId(req.params.id);
         const query = `select v, e
-          from graph_table (
+        from graph_table (
             openflights_graph
             match (v1 is ${label})-[e]-(v2)
             where (JSON_VALUE(VERTEX_ID(v1), ''$.KEY_VALUE.ID'') = ${index})
@@ -74,28 +77,22 @@ export default function createApp() {
           )`;
         return getRawGraph({ query, conn }).then((r) => res.json(r));
       });
-      app.get(
-        "/edges/:type/:pageStart?/:pageLength?/:maxResults?",
-        (req, res) => {
-          const { type, pageStart, pageLength, maxResults } = req.params;
-          const query = `select e
-          from graph_table (
+      app.get("/edges/:type/:pageStart/:pageLength", (req, res) => {
+        const { type, pageStart, pageLength } = req.params;
+        const query = `SELECT e
+          FROM graph_table (
             openflights_graph
-            match ()-[e1 is ${type}]-()
-            columns (
-              EDGE_ID(e1) as e
+            MATCH ()-[e1 IS ${type}]-()
+            COLUMNS (
+              EDGE_ID(e1) AS e
             )
-          )`;
-
-          return getRawGraph({
-            query,
-            conn,
-            maxResults: +maxResults,
-            pageStart: +pageStart,
-            pageLength: +pageLength,
-          }).then((r) => res.json(r));
-        }
-      );
+          )
+          OFFSET ${pageStart} ROWS FETCH NEXT ${pageLength} ROWS ONLY`;
+        return getRawGraph({
+          query,
+          conn,
+        }).then((r) => res.json(r));
+      });
       app.get("/nodes/:type", (req, res) => {
         const query = `select v
           from graph_table (
@@ -105,9 +102,10 @@ export default function createApp() {
               VERTEX_ID(v1) as v
             )
           )`;
-        return getRawGraph({ query, conn }).then((r) => res.json(r));
+        return getRawGraph({ query, conn, maxResults: 300 }).then((r) =>
+          res.json(r)
+        );
       });
-      app.use(express.static(path.resolve("../../client/dist")));
     });
   return app;
 }

@@ -1,6 +1,6 @@
 import { RawGraph } from "@linkurious/ogma";
 import { Connection, Lob } from "oracledb";
-import { OracleResponse, ParserOptions, SQLID } from "./types";
+import { OracleResponse, ParserOptions, Schema, SQLID } from "./types";
 export * from "./types";
 /**
  * Transforms an id from SQL database to a string id
@@ -79,9 +79,12 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
    * Function to transform a string id to a SQL ID
    */
   public SQLIDfromId: (id: string) => SQLID;
+
+  private schema?: Schema;
   constructor(options: ParserOptions<ND, ED>) {
     this.SQLIDtoId = options.SQLIDtoId || SQLIDtoId;
     this.SQLIDfromId = options.SQLIDfromId || SQLIDfromId;
+    this.schema = options.schema;
   }
   /**
    * Takes an [OracleResponse](/api/modules.html#oracleresponse) and returns a RawGraph
@@ -172,7 +175,60 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
     }
     return graph;
   }
+  getColumns(name: string, type: string) {
+    const { schema } = this;
+    if (!schema) {
+      throw new Error("Ogma-oracle-parser: Schema is required to get columns");
+    }
+    if (!schema.nodes[type] && !schema.edges[type]) {
+      throw new Error(`Ogma-oracle-parser: Type ${type} not found in schema`);
+    }
+    return (schema.nodes[type] || schema.edges[type]).map(
+      (prop) => `${name}.${prop} as ${name}__${prop}`
+    );
+  }
+
+  async getRawGraph2<N = ND, E = ED>({
+    query,
+    conn,
+    columns,
+    vertex,
+    edges,
+  }: {
+    query: string;
+    conn: Connection;
+    columns: string[];
+    vertex: string[];
+    edges: string[];
+  }) {
+    const graph: RawGraph<N, E> = { nodes: [], edges: [] };
+    const lobs = await conn.execute<Lob[]>(query);
+    return lobs;
+    if (!lobs.rows) {
+      return graph;
+    }
+    // lobs.rows.forEach((row) => {
+    //   const [id, ...properties] = row;
+    //   const datas = properties.reduce((acc, prop, i) => {
+    //     const [name, type] = columns[i].split("__");
+    //     if (!acc[name]) acc[name] = {};
+    //     acc[name][type] = prop;
+    //   }, {});
+
+    //   graph.nodes.push({
+    //     // @ts-expect-error
+    //     id: `${id.ELEM_TABLE}{"ID":${id.KEY_VALUE.ID}}`,
+    //     data: properties.reduce((acc, prop, i) => {
+    //       // @ts-expect-error
+    //       acc[columns[i]] = prop;
+    //       return acc;
+    //     }, {}) as N,
+    //   });
+    // });
+    // return graph;
+  }
 }
+
 const parser = new OgmaOracleParser({ SQLIDtoId, SQLIDfromId });
 export default parser;
 export const parse = parser.parse.bind(parser);

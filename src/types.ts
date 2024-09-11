@@ -33,6 +33,7 @@ export type ParserOptions<ND, ED> = {
   rowId?: (id: string) => string;
   labelFromId?: (id: string) => string;
   parseFn?: parseFn<ND, ED>;
+  schema?: Schema;
 };
 
 /**
@@ -44,4 +45,9 @@ export type OracleResponse<
 > = {
   vertices: { id: SQLID; properties: ND }[];
   edges: { id: SQLID; properties: ED; source: SQLID; target: SQLID }[];
+};
+
+export type Schema = {
+  nodes: Record<string, string[]>;
+  edges: Record<string, string[]>;
 };

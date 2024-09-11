@@ -2,6 +2,7 @@ import {
   getRawGraph,
   labelFromId,
   rowId,
+  OgmaOracleParser,
 } from "@linkurious/ogma-oracle-parser";
 import bodyParser from "body-parser";
 import cors from "cors";
@@ -10,6 +11,36 @@ import oracledb from "oracledb";
 import dbConfig from "./config";
 const { user, password, connectString } = dbConfig;
 
+const parser = new OgmaOracleParser({
+  schema: {
+    nodes: {
+      airport: [
+        "NAME",
+        "IATA",
+        "ICAO",
+        "AIRPORT_TYPE",
+        "LONGITUDE",
+        "LATITUDE",
+        "ALTITUDE",
+        "TIMEZONE",
+        "TZDBTIME",
+        "DST",
+      ],
+      city: ["CITY", "COUNTRY"],
+    },
+    edges: {
+      route: [
+        "codeshare",
+        "airline_id",
+        "equipment",
+        "stops",
+        "distance_in_mi",
+        "distance_in_km",
+      ],
+      located_in: [],
+    },
+  },
+});
 const labelMap = new Map([
   ["CITIES", "CITY"],
   ["ROUTES", "ROUTE"],
@@ -31,6 +62,39 @@ export default function createApp() {
           origin: "*",
         })
       );
+      app.get("/test", async (req, res) => {
+        const airportC = parser.getColumns("v1", "airport");
+        const routeC = parser.getColumns("e1", "route");
+        // const query = `select *
+        //   from graph_table (
+        //     openflights_graph
+        //     match (v1 is ${type})
+        //     columns (
+        //       VERTEX_ID(v1) as v,
+        //       ${parser.columnsToQuery("v1", columns)}
+        //     )
+        //   )`;
+        const query = `select *
+          from graph_table (
+            openflights_graph
+            match (v1 is airport)-[e1 is route]-()
+            columns (
+              EDGE_ID(e1) as e1,
+              VERTEX_ID(v1) as v1,
+              ${airportC.join(", ")},
+              ${routeC.join(", ")}
+            )
+          ) FETCH FIRST 10 ROWS ONLY`;
+        return parser
+          .getRawGraph2({
+            query,
+            conn,
+            columns: [],
+            vertex: ["v1"],
+            edges: ["e1"],
+          })
+          .then((r) => res.json(r));
+      });
       app.get("/expand/:id", (req, res) => {
         const label =
           labelMap.get(labelFromId(req.params.id)) ||

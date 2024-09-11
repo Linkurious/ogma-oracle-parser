@@ -4,62 +4,18 @@ import { Connector } from "./graph-fetch";
 import { icons } from "./icons";
 import { LeftPanel } from "./left-panel";
 import { showLoader, hideLoader } from "./loader";
+import { NodeData, EdgeData } from "./types";
 
 const leftPanelRoot = document.createElement("div");
 leftPanelRoot.classList.add("left-panel");
 const leftPanel = new LeftPanel(leftPanelRoot);
 const fontName = "Font Awesome 6 Free";
-const schema = {
-  nodes: {
-    city: {
-      label: "city",
-      properties: {
-        CITY: "string",
-        COUNTRY: "string",
-      },
-    },
-    airport: {
-      label: "located_in",
-      properties: {
-        NAME: "string",
-        IATA: "string",
-        ICAO: "string",
-        AIRPORT_TYPE: "string",
-        LONGITUDE: "number",
-        LATITUDE: "number",
-        ALTITUDE: "number",
-        TIMEZONE: "string",
-        TZDBTIME: "string",
-        DST: "string",
-      },
-    },
-  },
-  edges: {
-    route: {
-      label: "route",
-      properties: {
-        codeshare: "string",
-        airline_id: "string",
-        equipment: "string",
-        stops: "number",
-        distance_in_mi: "number",
-        distance_in_km: "number",
-      },
-    },
-    airports_in_cities: {
-      label: "located_in",
-      properties: {},
-    },
-  },
-};
-
-type ND =
-  | (typeof schema.nodes.city.properties & { type: "CITIES" })
-  | (typeof schema.nodes.airport.properties & { type: "AIRPORTs" });
-type ED = typeof schema.edges.route | typeof schema.edges.airports_in_cities;
-const connector = new Connector<typeof schema>(schema);
+const connector = new Connector();
 export function setupOgma(element: HTMLDivElement) {
-  const ogma = new Ogma<ND, ED>({
+  const ogma = new Ogma<
+    NodeData<"city"> | NodeData<"airport">,
+    EdgeData<"route"> | EdgeData<"located_in">
+  >({
     container: element,
   });
   ogma.styles.addNodeRule({
@@ -126,7 +82,12 @@ export function setupOgma(element: HTMLDivElement) {
     connector.fetchNodesByType("city"),
     connector.fetchNodesByType("airport"),
   ])
-    .then(([cities, airports]) => ogma.addNodes(cities.concat(airports)))
+    .then(([cities, airports]) => {
+      return Promise.all([
+        ogma.addNodes(cities, { ignoreInvalid: true }),
+        ogma.addNodes(airports, { ignoreInvalid: true }),
+      ]);
+    })
     .then(() => {
       showLoader("Loading Routes");
       return Promise.all([
@@ -136,7 +97,10 @@ export function setupOgma(element: HTMLDivElement) {
     })
     .then(([located, route]) => {
       hideLoader();
-      return ogma.addEdges(located.concat(route), { ignoreInvalid: true });
+      return Promise.all([
+        ogma.addEdges(located, { ignoreInvalid: true }),
+        ogma.addEdges(route, { ignoreInvalid: true }),
+      ]);
     })
     .then(() => {
       return ogma.layouts.force({ locate: true, gpu: true });

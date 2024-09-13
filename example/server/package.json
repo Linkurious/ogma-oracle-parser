@@ -1,6 +1,6 @@
 {
   "name": "express-oracle",
-  "version": "0.0.1",
+  "version": "1.0.2",
   "description": "Express with oracle db",
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,6 @@
     "express",
     "boilerplate"
   ],
-  "author": "Anatoliy Pechkin tolya.pechkin@gmail.com",
   "license": "MIT",
   "engines": {
     "node": ">=6.9.0"

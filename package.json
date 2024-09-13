@@ -1,6 +1,6 @@
 {
   "name": "@linkurious/ogma-oracle-parser",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Parses responses from Oracle graph DB into Ogma format",
   "main": "dist/ogma-oracle-parser.umd.js",
   "module": "dist/ogma-oracle-parser.umd.js",
@@ -27,7 +27,8 @@
     "predocs:publish": "npm run docs:build",
     "docs:publish": "gh-pages -d docs/.vitepress/dist",
     "test:unit": "vitest run --coverage --reporter=junit --reporter=default --outputFile reports/unit/junit-test-results.xml",
-    "test:dev": "vitest"
+    "test:dev": "vitest",
+    "bump:patch": "npm version --no-git-tag-version patch"
   },
   "author": "Leo Nicolle",
   "license": "Apache-2.0",

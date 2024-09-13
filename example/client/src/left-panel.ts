@@ -1,5 +1,5 @@
-import { Node, Edge } from '@linkurious/ogma';
-import { rowId, labelFromId } from '@linkurious/ogma-oracle-parser';
+import { Node, Edge } from "@linkurious/ogma";
+import { rowId, labelFromId } from "@linkurious/ogma-oracle-parser";
 export class LeftPanel {
   private rootElement: HTMLElement;
   constructor(rootElement: HTMLElement) {
@@ -7,17 +7,20 @@ export class LeftPanel {
   }
 
   setGraphElement(element: Node | Edge) {
-    this.rootElement.classList.add('slide-in');
-    this.rootElement.classList.remove('slide-out');
+    this.rootElement.classList.add("slide-in");
+    this.rootElement.classList.remove("slide-out");
 
-    const eltType = element.isNode ? 'node' : 'edge';
-    const tableName = labelFromId(element.getId());
-    const id = rowId(element.getId());
+    const eltType = element.isNode ? "node" : "edge";
+    const eltId = element.getId() as string;
+    const tableName = labelFromId(eltId);
+    const id = rowId(eltId);
     const graphId = `${tableName}{"ID":${id}}`;
-    const properties = `<ul>${Object.entries(element.getData())
-      .reduce((acc, [key, value]) => {
+    const properties = `<ul>${Object.entries(element.getData()).reduce(
+      (acc, [key, value]) => {
         return acc + `<li><span>${key}:</span> ${value}</li>`;
-      }, '')}</ul>`;
+      },
+      ""
+    )}</ul>`;
 
     const dbProperties = `
       <ul>
@@ -34,9 +37,9 @@ export class LeftPanel {
     `;
   }
   clear() {
-    this.rootElement.classList.remove('slide-in');
-    this.rootElement.classList.add('slide-out');
+    this.rootElement.classList.remove("slide-in");
+    this.rootElement.classList.add("slide-out");
 
-    this.rootElement.innerHTML = '';
+    this.rootElement.innerHTML = "";
   }
 }

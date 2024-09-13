@@ -7,8 +7,8 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
 import oracledb from "oracledb";
-import dbConfig from "./config";
 import path from "path";
+import dbConfig from "./config";
 
 const { user, password, connectString } = dbConfig;
 
@@ -28,6 +28,10 @@ export default function createApp() {
         cors({
           origin: "*",
         })
+      );
+      app.use(
+        "/",
+        express.static(path.resolve(__dirname, "../../client/dist"))
       );
       app.get("/expand/:id", (req, res) => {
         const label =

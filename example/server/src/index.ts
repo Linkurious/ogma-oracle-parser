@@ -1,7 +1,7 @@
-import createApp from './app';
+import createApp from "./app";
 const app = createApp();
 const port = process.env.NODE_PORT;
 
 app.listen(port, function () {
-  console.log('Express server listening on port ' + port);
+  console.log("Express server listening on port " + port);
 });

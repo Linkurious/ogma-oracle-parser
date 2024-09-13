@@ -100,15 +100,41 @@ quit
 
 Congratulations! You have completed the first step.
 
+## Build the Frontend
+
+Open a new SSH connection to your compute instance.
+
+```sh
+# Make sure you are in the right directory
+cd ~/ogma-oracle-parser/example/client
+```
+
+You will need to provide your Ogma API key to be able to install Ogma via npm install.
+Either by modifying the `package.json`, either by running:
+
+
+```sh
+npm install --save https://get.linkurio.us/api/get/npm/ogma/<VERSION>/?secret=<YOUR_API_KEY>
+```
+
+Then:
+
+```sh
+npm install
+npm run build
+```
+That's it! You know have a `dist` folder containing the frontend app. 
+It displays the graph. You can check the properties of nodes and edges properties by clicking on the node or edge. A double-click on a node expands it with one hop.
+
+Now we will need to start the server in order to access it.
+
 ## Start the Server
 
 ```sh
 # Make sure you are in the right directory
 cd ~/ogma-oracle-parser/example/server
 ```
-
-You will need to provide your Ogma API key to be able to install Ogma via npm install.
-Either by modifying the `package.json`, either by running:
+Same as for cient, you will need to install Ogma by providing your `API_KEY`. Then you can just proceed:
 
 ```sh
 npm install --save https://get.linkurio.us/api/get/npm/ogma/<VERSION>/?secret=<YOUR_API_KEY>
@@ -129,35 +155,6 @@ You now have an express app that answers to a few routes by querying your SQL da
 - `[GET] /edge/:id` Returns the edge corresponding to `id`
 - `[GET /expand/:id` Returns all the neighbors of the node referred by `id`.
 
-## Start the Frontend
-
-Open a new SSH connection to your compute instance.
-
-```sh
-# Make sure you are in the right directory
-cd ~/ogma-oracle-parser/example/client
-```
-
-Same as for server, you will need to install Ogma by providing your `API_KEY`. Then you can just proceed:
-
-```sh
-npm install --save https://get.linkurio.us/api/get/npm/ogma/<VERSION>/?secret=<YOUR_API_KEY>
-```
-
-Then:
-
-```sh
-npm install
-npm run dev
-```
-
-Alternately, if you want to expose the client app from remote, then:
-
-```sh
-npm install
-npm run dev -- --host
-```
-
-You now have a frontend running on `http://<host>:5173/`. It displays the graph. You can check the properties of nodes and edges properties by clicking on the node or edge. A double-click on a node expands it with one hop.
+It also serves the client app on the root route. So you can navigate to `http://localhost:1337` and see the graph displayed. Or to your remote server IP address if you are running it on a remote server.
 
 Enjoy!

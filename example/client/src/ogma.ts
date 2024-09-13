@@ -46,7 +46,7 @@ const schema = {
         distance_in_km: "number",
       },
     },
-    airports_in_cities: {
+    located_in: {
       label: "located_in",
       properties: {},
     },
@@ -129,7 +129,7 @@ export function setupOgma(element: HTMLDivElement) {
     .then(() => {
       showLoader("Loading Routes");
       return Promise.all([
-        connector.fetchEdgesByType("airports_in_cities"),
+        connector.fetchEdgesByType("located_in"),
         connector.fetchEdgesByType("route"),
       ]);
     })

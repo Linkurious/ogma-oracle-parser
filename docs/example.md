@@ -110,7 +110,7 @@ cd ~/ogma-oracle-parser/example/client
 ```
 
 You will need to provide your Ogma API key to be able to install Ogma via npm install.
-Either by modifying the `package.json`, either by running:
+Either by modifying the `package.json`, or by running:
 
 
 ```sh
@@ -123,7 +123,7 @@ Then:
 npm install
 npm run build
 ```
-That's it! You know have a `dist` folder containing the frontend app. 
+That's it! You now have a `dist` folder containing the frontend app. 
 It displays the graph. You can check the properties of nodes and edges properties by clicking on the node or edge. A double-click on a node expands it with one hop.
 
 Now we will need to start the server in order to access it.
@@ -134,7 +134,7 @@ Now we will need to start the server in order to access it.
 # Make sure you are in the right directory
 cd ~/ogma-oracle-parser/example/server
 ```
-Same as for cient, you will need to install Ogma by providing your `API_KEY`. Then you can just proceed:
+Same as for client, you will need to install Ogma by providing your `API_KEY`. Then you can just proceed:
 
 ```sh
 npm install --save https://get.linkurio.us/api/get/npm/ogma/<VERSION>/?secret=<YOUR_API_KEY>
@@ -148,13 +148,14 @@ npm run start
 ```
 
 You now have an express app that answers to a few routes by querying your SQL database:
-
 - `[GET] /nodes/:type` Returns all nodes of a certain type. Type must match with the labels passed in your `CREATE PROPERTY GRAPH` call.
 - `[GET] /edges/:types` Returns all edges of a certain type.
 - `[GET] /node/:id` Returns the node corresponding to `id`. ID must be of the form: `LABEL-ID`.
 - `[GET] /edge/:id` Returns the edge corresponding to `id`
 - `[GET /expand/:id` Returns all the neighbors of the node referred by `id`.
 
-It also serves the client app on the root route. So you can navigate to `http://localhost:1337` and see the graph displayed. Or to your remote server IP address if you are running it on a remote server.
+## Use the app
+
+You can now navigate to `http://localhost:1337` and see the graph displayed. Or to your remote server IP address if you are running it on a remote server.
 
 Enjoy!

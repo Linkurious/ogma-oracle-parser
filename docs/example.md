@@ -158,4 +158,11 @@ You now have an express app that answers to a few routes by querying your SQL da
 
 You can now navigate to `http://localhost:1337` and see the graph displayed. Or to your remote server IP address if you are running it on a remote server.
 
-Enjoy!
+- You can click on a node to see its properties.
+- You can double-click on a node to expand it with one hop.
+- You can click on an edge to see its properties.
+
+<video controls>
+  <source src="./video.webm" type="video/webm">
+  Your browser does not support the video tag.
+</video>

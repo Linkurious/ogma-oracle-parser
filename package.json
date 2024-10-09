@@ -1,6 +1,6 @@
 {
   "name": "@linkurious/ogma-oracle-parser",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Parses responses from Oracle graph DB into Ogma format",
   "main": "dist/ogma-oracle-parser.umd.js",
   "module": "dist/ogma-oracle-parser.umd.js",

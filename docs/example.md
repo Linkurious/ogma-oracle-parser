@@ -163,6 +163,6 @@ You can now navigate to `http://localhost:1337` and see the graph displayed. Or 
 - You can click on an edge to see its properties.
 
 <video controls>
-  <source src="./video.webm" type="video/webm">
+  <source src="/video.webm" type="video/webm">
   Your browser does not support the video tag.
 </video>

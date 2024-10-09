@@ -25,7 +25,7 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "predocs:publish": "npm run docs:build",
-    "docs:publish": "gh-pages -d docs/.vitepress/dist",
+    "docs:publish": "gh-pages -t --nojekyll -d docs/.vitepress/dist",
     "test:unit": "vitest run --coverage --reporter=junit --reporter=default --outputFile reports/unit/junit-test-results.xml",
     "test:dev": "vitest",
     "bump:patch": "npm version --no-git-tag-version patch"

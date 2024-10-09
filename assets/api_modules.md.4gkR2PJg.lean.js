@@ -1,1 +1,0 @@
-import{_ as e,o as t,c as a,R as d}from"./chunks/framework.RPs0iv3U.js";const g=JSON.parse('{"title":"Types","description":"","frontmatter":{},"headers":[],"relativePath":"api/modules.md","filePath":"api/modules.md"}'),o={name:"api/modules.md"},r=d("",47),l=[r];function c(s,n,i,h,p,f){return t(),a("div",null,l)}const u=e(o,[["render",c]]);export{g as __pageData,u as default};

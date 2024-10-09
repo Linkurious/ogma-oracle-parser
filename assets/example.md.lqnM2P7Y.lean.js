@@ -1,1 +1,0 @@
-import{_ as s,o as i,c as a,R as e}from"./chunks/framework.RPs0iv3U.js";const F=JSON.parse('{"title":"Example","description":"","frontmatter":{},"headers":[],"relativePath":"example.md","filePath":"example.md"}'),t={name:"example.md"},n=e("",44),h=[n];function p(l,k,r,d,o,c){return i(),a("div",null,h)}const y=s(t,[["render",p]]);export{F as __pageData,y as default};

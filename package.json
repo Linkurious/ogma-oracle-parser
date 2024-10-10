@@ -15,7 +15,7 @@
   "scripts": {
     "prebuild": "tsc",
     "build": "vite build",
-    "prepack": "npm run build",
+    "prepack": "npm run build && node scripts/clean-package.js",
     "lint:ci": "eslint -f checkstyle -o reports/checkstyle.xml --ext ts --ext js src ./tests/**/*.test.ts",
     "docs:api": "typedoc --plugin typedoc-plugin-markdown --out docs/api src/index.ts",
     "postdocs:api": "node scripts/cleanup-md.mjs",

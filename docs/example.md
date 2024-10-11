@@ -29,14 +29,21 @@ Now, you can use `Podman` to:
 - load a sample dataset
 - create a property graph on top of the sample dataset
 
+Make sure you are in the right directory.
+
 ```sh
-# Make sure you are in the right directory
 cd ~/ogma-oracle-parser/example/database
+```
 
-# Clean up existing containers
+Clean up existing containers if necessary.
+
+```sh
 podman rmi --force -a
+```
 
-# Pull a new Oracle Database 23ai Free container image
+Now pull a new Oracle Database 23ai Free container image.
+
+```sh
 podman run --privileged -d --name 23aifree \
  -p 1521:1521 \
  -e ORACLE_PWD=Welcome_1234# \
@@ -66,8 +73,6 @@ podman exec -it 23aifree sqlplus pdbadmin/Welcome_1234#@freepdb1
 ```
 
 ```sql
-show user
-
 select 1;
 ```
 
@@ -100,18 +105,18 @@ quit
 
 Congratulations! You have completed the first step.
 
-## Build the Frontend
+## Build the client app
 
+As frontend we deploy an express application.  
 Open a new SSH connection to your compute instance.
 
+Make sure you are in the right directory.
+
 ```sh
-# Make sure you are in the right directory
 cd ~/ogma-oracle-parser/example/client
 ```
 
-You will need to provide your Ogma API key to be able to install Ogma via npm install.
-Either by modifying the `package.json`, or by running:
-
+You need to provide your Ogma API key as `<YOUR_API_KEY>` and the Ogma version number as `<VERSION>` to be able to install Ogma via `npm install`. You can do this either directly in `package.json`, or by running the following command:
 
 ```sh
 npm install --save https://get.linkurio.us/api/get/npm/ogma/<VERSION>/?secret=<YOUR_API_KEY>
@@ -123,18 +128,20 @@ Then:
 npm install
 npm run build
 ```
-That's it! You now have a `dist` folder containing the frontend app. 
-It displays the graph. You can check the properties of nodes and edges properties by clicking on the node or edge. A double-click on a node expands it with one hop.
 
-Now we will need to start the server in order to access it.
+That's it! You have completed the second step too.
+
+Now we need to start the server in order to access the client app.
 
 ## Start the Server
 
+Make sure you are in the right directory.
+
 ```sh
-# Make sure you are in the right directory
 cd ~/ogma-oracle-parser/example/server
 ```
-Same as for client, you will need to install Ogma by providing your `API_KEY`. Then you can just proceed:
+
+The rest is the same as for the client; you  need to install Ogma by providing your `<YOUR_API_KEY>` and specifying `<VERSION>` .
 
 ```sh
 npm install --save https://get.linkurio.us/api/get/npm/ogma/<VERSION>/?secret=<YOUR_API_KEY>
@@ -147,14 +154,15 @@ npm install
 npm run start
 ```
 
-You now have an express app that answers to a few routes by querying your SQL database:
+You now have an the client app that retrieves airports and flight routes by querying the SQL Property Graph in your database:
+
 - `[GET] /nodes/:type` Returns 300 nodes of a certain type. Type must match with the labels passed in your `CREATE PROPERTY GRAPH` call.
 - `[GET] /edges/:types` Returns all edges of a certain type.
 - `[GET] /node/:id` Returns the node corresponding to `id`. ID must be of the form: `LABEL-ID`.
 - `[GET] /edge/:id` Returns the edge corresponding to `id`
 - `[GET /expand/:id` Returns all the neighbors of the node referred by `id`.
 
-## Use the app
+## Use the client app
 
 You can now navigate to `http://localhost:1337` and see the graph displayed. Or to your remote server IP address if you are running it on a remote server.
 

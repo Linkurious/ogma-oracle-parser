@@ -1,0 +1,1 @@
+import{_ as s,o as i,c as a,R as e,a1 as t}from"./chunks/framework.ncSBrfv2.js";const y=JSON.parse('{"title":"Example","description":"","frontmatter":{},"headers":[],"relativePath":"example.md","filePath":"example.md"}'),n={name:"example.md"},p=e("",53),h=[p];function l(k,r,d,o,c,g){return i(),a("div",null,h)}const u=s(n,[["render",l]]);export{y as __pageData,u as default};

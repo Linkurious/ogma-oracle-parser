@@ -12,9 +12,8 @@ export class LeftPanel {
 
     const eltType = element.isNode ? "node" : "edge";
     const eltId = element.getId() as string;
-    const tableName = labelFromId(eltId);
+    const type = labelFromId(eltId);
     const id = rowId(eltId);
-    const graphId = `${tableName}{"ID":${id}}`;
     const properties = `<ul>${Object.entries(element.getData()).reduce(
       (acc, [key, value]) => {
         return acc + `<li><span>${key}:</span> ${value}</li>`;
@@ -24,8 +23,8 @@ export class LeftPanel {
 
     const dbProperties = `
       <ul>
-        <li><span>Table:</span> ${tableName}</li>
-        <li><span>ID:</span> ${graphId}</li>
+        <li><span>TYPE:</span> ${type}</li>
+        <li><span>ID:</span> ${id}</li>
       </ul>
     `;
     this.rootElement.innerHTML = `

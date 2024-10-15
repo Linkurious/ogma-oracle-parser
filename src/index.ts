@@ -1,7 +1,7 @@
 import { RawGraph } from "@linkurious/ogma";
 import { Connection, Lob } from "oracledb";
 import { OracleResponse, ParserOptions, SQLID } from "./types";
-export * from './types';
+export * from "./types";
 /**
  * Transforms an id from SQL database to a string id
  * @param rawId SQL Oracle ID
@@ -9,7 +9,7 @@ export * from './types';
  */
 export function SQLIDtoId(sqlid: SQLID) {
   const match = sqlid.match(/(.*)\{.+:([0-9]+)/);
-  if (!match || match.length !== 3) throw new Error('Invalid ID');
+  if (!match || match.length !== 3) throw new Error("Invalid ID");
   return `${match[1]}:${match[2]}`;
 }
 /**
@@ -19,7 +19,7 @@ export function SQLIDtoId(sqlid: SQLID) {
  */
 export function rowId(id: string) {
   const match = id.match(/(.+):(.+)/);
-  if (!match || match.length !== 3) throw new Error('Invalid ID');
+  if (!match || match.length !== 3) throw new Error("Invalid ID");
   return match[2];
 }
 /**
@@ -29,8 +29,8 @@ export function rowId(id: string) {
  */
 export function labelFromId(id: string) {
   const match = id.match(/(.+):(.+)/);
-  if (!match || match.length !== 3) throw new Error('Invalid ID');
-  return match[1].slice(0, -1);
+  if (!match || match.length !== 3) throw new Error("Invalid ID");
+  return match[1];
 }
 /**
  * Transforms a string id to a SQL ID
@@ -49,17 +49,17 @@ export function SQLIDfromId(id: string): SQLID {
 export function readLob<T = unknown>(lob: Lob) {
   return new Promise<T>((resolve, reject) => {
     let json = "";
-    lob.setEncoding('utf8');
-    lob.on('error', (err) => {
+    lob.setEncoding("utf8");
+    lob.on("error", (err) => {
       reject(err);
     });
-    lob.on('data', (chunk) => {
+    lob.on("data", (chunk) => {
       json += chunk;
     });
-    lob.on('end', () => {
+    lob.on("end", () => {
       lob.destroy();
     });
-    lob.on('close', () => {
+    lob.on("close", () => {
       resolve(JSON.parse(json));
     });
   });
@@ -104,24 +104,28 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
           id: idFn(sqlid),
           data: properties,
         };
-      })
+      }),
     } as RawGraph<N, E>;
   }
 
   /**
    * Read a lob and parse it as [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
-   * @param lob 
-   * @returns 
+   * @param lob
+   * @returns
    */
   parseLob<N = ND, E = ED>(lob: Lob) {
-    return readLob<OracleResponse<N, E> & { numResults: number; }>(lob)
-      .then((result) => ({ ...this.parse<N, E>(result), numResults: result.numResults }));
+    return readLob<OracleResponse<N, E> & { numResults: number }>(lob).then(
+      (result) => ({
+        ...this.parse<N, E>(result),
+        numResults: result.numResults,
+      })
+    );
   }
 
   /**
-   * Executes a query (wrapped in CUST_SQLGRAPH_JSON) 
+   * Executes a query (wrapped in CUST_SQLGRAPH_JSON)
    * and returns a [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
-   * 
+   *
    * @param options
    * @param options.query The query to execute
    * @param options.conn The connection to use
@@ -130,15 +134,19 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
    * @param options.maxResults The maximum number of elements returned (nodes + edges) (default Infinity)
    * @returns a RawgGraph
    */
-  async getRawGraph<N = ND, E = ED>({ query, conn, pageStart, pageLength, maxResults }:
-    {
-      query: string,
-      conn: Connection,
-      pageStart?: number,
-      pageLength?: number,
-      maxResults?: number;
-    }) {
-
+  async getRawGraph<N = ND, E = ED>({
+    query,
+    conn,
+    pageStart,
+    pageLength,
+    maxResults,
+  }: {
+    query: string;
+    conn: Connection;
+    pageStart?: number;
+    pageLength?: number;
+    maxResults?: number;
+  }) {
     let hasFinised = false;
     let totalResults = 0;
     pageStart = pageStart || 0;
@@ -146,12 +154,20 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
     maxResults = maxResults || Infinity;
     const graph: RawGraph<N, E> = { nodes: [], edges: [] };
     while (!hasFinised && totalResults < maxResults) {
-      const lobs = await conn.execute<Lob[]>(`SELECT CUST_SQLGRAPH_JSON('${query}', ${pageStart}, ${pageLength}) AS COLUMN_ALIAS FROM DUAL`);
+      console.log(
+        "ICI",
+        `SELECT CUST_SQLGRAPH_JSON('${query}', ${pageStart}, ${pageLength}) AS COLUMN_ALIAS FROM DUAL`
+      );
+      const lobs = await conn.execute<Lob[]>(
+        `SELECT CUST_SQLGRAPH_JSON('${query}', ${pageStart}, ${pageLength}) AS COLUMN_ALIAS FROM DUAL`
+      );
       if (!lobs.rows) {
         return graph;
       }
-      const { numResults, nodes, edges } = await this.parseLob<N, E>(lobs.rows![0][0]);
-      hasFinised = pageStart >= numResults;
+      const { numResults, nodes, edges } = await this.parseLob<N, E>(
+        lobs.rows![0][0]
+      );
+      hasFinised = pageStart >= numResults || numResults < pageLength;
       pageStart += pageLength;
       graph.nodes.push(...nodes);
       graph.edges.push(...edges);

@@ -156,11 +156,16 @@ npm run start
 
 You now have an the client app that retrieves airports and flight routes by querying the SQL Property Graph in your database:
 
-- `[GET] /nodes/:type` Returns 300 nodes of a certain type. Type must match with the labels passed in your `CREATE PROPERTY GRAPH` call.
-- `[GET] /edges/:types` Returns all edges of a certain type.
-- `[GET] /node/:id` Returns the node corresponding to `id`. ID must be of the form: `LABEL-ID`.
-- `[GET] /edge/:id` Returns the edge corresponding to `id`
-- `[GET /expand/:id` Returns all the neighbors of the node referred by `id`.
+- `[GET] /nodes/:type` Returns 300 nodes of a certain type. Type must match with the labels passed in your `CREATE PROPERTY GRAPH` call.\
+  Examples: `/nodes/airport`, `/nodes/city`.
+- `[GET] /edges/:types/:pageStart/:maxResults` Returns all edges of a certain type.\
+  Examples: `/edges/located_in/0/100`, `/edges/route/100/100`.
+- `[GET] /node/:id` Returns the node corresponding to `id`. ID must be of the form: `LABEL-ID`.\
+  Examples: `/node/airport:130`, `/node/city:1000`.
+- `[GET] /edge/:id` Returns the edge corresponding to `id`.\
+  Examples: `/edge/located_in:1000`, `/edge/route:101`.
+- `[GET /expand/:id` Returns all the neighbors of the node referred by `id`.\
+  Examples: `/expand/airport:8`, `/expand/city:2`.
 
 ## Use the client app
 

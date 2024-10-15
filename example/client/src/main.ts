@@ -14,7 +14,7 @@ axios.interceptors.request.use((config) => {
   config.url = `${root}/${config.url}`;
   return config;
 });
-
+window.axios = axios;
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div id="ogma">
   </div>

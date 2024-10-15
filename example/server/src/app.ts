@@ -63,7 +63,6 @@ export default function createApp() {
           labelMap.get(labelFromId(req.params.id)) ||
           labelFromId(req.params.id);
         const index = rowId(req.params.id);
-        console.log("LA", req.params.id, label, index);
         const query = `select v
           from graph_table (
             openflights_graph

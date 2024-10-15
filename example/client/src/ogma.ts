@@ -117,7 +117,6 @@ export function setupOgma(element: HTMLDivElement) {
     if (!evt.target) return leftPanel.clear();
     leftPanel.setGraphElement(evt.target);
   });
-  window.ogma = ogma;
   showLoader("Loading Airports and Cities");
   return Promise.all([
     connector.fetchNodesByType("city"),

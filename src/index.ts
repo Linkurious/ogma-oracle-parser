@@ -154,10 +154,6 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
     maxResults = maxResults || Infinity;
     const graph: RawGraph<N, E> = { nodes: [], edges: [] };
     while (!hasFinised && totalResults < maxResults) {
-      console.log(
-        "ICI",
-        `SELECT CUST_SQLGRAPH_JSON('${query}', ${pageStart}, ${pageLength}) AS COLUMN_ALIAS FROM DUAL`
-      );
       const lobs = await conn.execute<Lob[]>(
         `SELECT CUST_SQLGRAPH_JSON('${query}', ${pageStart}, ${pageLength}) AS COLUMN_ALIAS FROM DUAL`
       );

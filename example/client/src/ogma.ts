@@ -60,7 +60,7 @@ export function setupOgma(element: HTMLDivElement) {
   });
   ogma.styles.addNodeRule({
     color: (node) =>
-      labelFromId(`${node.getId()}`) === "CITIE" ? "#dbd3ad" : "#d36060",
+      labelFromId(`${node.getId()}`) === "CITIES" ? "#dbd3ad" : "#d36060",
     icon: {
       font: fontName,
       color: "white",
@@ -70,7 +70,7 @@ export function setupOgma(element: HTMLDivElement) {
     },
     text: {
       content: (n) =>
-        labelFromId(`${n.getId()}`) === "CITIE"
+        labelFromId(`${n.getId()}`) === "CITIES"
           ? n.getData("CITY")
           : n.getData("IATA"),
       size: 15,
@@ -117,7 +117,6 @@ export function setupOgma(element: HTMLDivElement) {
     if (!evt.target) return leftPanel.clear();
     leftPanel.setGraphElement(evt.target);
   });
-
   showLoader("Loading Airports and Cities");
   return Promise.all([
     connector.fetchNodesByType("city"),

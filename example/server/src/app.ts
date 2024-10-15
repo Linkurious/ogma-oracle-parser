@@ -13,8 +13,12 @@ const { user, password, connectString } = dbConfig;
 
 const labelMap = new Map([
   ["CITIES", "CITY"],
+  ["cities", "CITY"],
   ["ROUTES", "ROUTE"],
+  ["routes", "ROUTE"],
   ["AIRPORTS", "AIRPORT"],
+  ["airports", "AIRPORT"],
+  ["located_in", "LOCATED_IN"],
 ]);
 export default function createApp() {
   const app = express();
@@ -55,7 +59,9 @@ export default function createApp() {
       });
 
       app.get("/node/:id", (req, res) => {
-        const label = labelFromId(req.params.id);
+        const label =
+          labelMap.get(labelFromId(req.params.id)) ||
+          labelFromId(req.params.id);
         const index = rowId(req.params.id);
         const query = `select v
           from graph_table (
@@ -82,8 +88,8 @@ export default function createApp() {
           )`;
         return getRawGraph({ query, conn }).then((r) => res.json(r));
       });
-      app.get("/edges/:type/:pageStart/:pageLength", (req, res) => {
-        const { type, pageStart, pageLength } = req.params;
+      app.get("/edges/:type/:pageStart/:maxResults", (req, res) => {
+        const { type, pageStart, maxResults } = req.params;
         const query = `SELECT e
           FROM graph_table (
             openflights_graph
@@ -92,13 +98,16 @@ export default function createApp() {
               EDGE_ID(e1) AS e
             )
           )
-          OFFSET ${pageStart} ROWS FETCH NEXT ${pageLength} ROWS ONLY`;
+          OFFSET ${pageStart} ROWS FETCH NEXT ${maxResults} ROWS ONLY`;
         return getRawGraph({
           query,
           conn,
+          pageStart: 0,
+          maxResults: Number(maxResults),
         }).then((r) => res.json(r));
       });
       app.get("/nodes/:type", (req, res) => {
+        const maxResults = 300;
         const query = `select v
           from graph_table (
             openflights_graph
@@ -106,7 +115,9 @@ export default function createApp() {
             columns (
               VERTEX_ID(v1) as v
             )
-          )`;
+          )
+            OFFSET 0 ROWS FETCH NEXT ${maxResults} ROWS ONLY  
+          `;
         return getRawGraph({ query, conn, maxResults: 300 }).then((r) =>
           res.json(r)
         );

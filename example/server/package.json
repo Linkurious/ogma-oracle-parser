@@ -1,6 +1,6 @@
 {
   "name": "express-oracle",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Express with oracle db",
   "main": "index.js",
   "scripts": {
@@ -23,23 +23,22 @@
   },
   "dependencies": {
     "@linkurious/ogma-oracle-parser": "^1.0.0",
-    "bluebird": "^3.7.2",
-    "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "nodemailer": "^6.9.6",
-    "oracledb": "^6.2.0"
+    "bluebird": "3.7.2",
+    "body-parser": "1.20.3",
+    "cors": "2.8.5",
+    "dotenv": "16.3.1",
+    "express": "4.20.0",
+    "oracledb": "6.2.0"
   },
   "devDependencies": {
-    "@types/body-parser": "^1.19.5",
-    "@types/cors": "^2.8.16",
-    "@types/express": "^4.17.21",
-    "@types/oracledb": "^6.0.3",
-    "eslint": "^8.55.0",
-    "eslint-config-google": "^0.7.1",
-    "eslint-plugin-node": "^11.1.0",
-    "nodemon": "^3.0.2",
-    "typescript": "^5.2.2"
+    "@types/body-parser": "1.19.5",
+    "@types/cors": "2.8.17",
+    "@types/express": "4.17.21",
+    "@types/oracledb": "6.2.0",
+    "eslint": "8.55.0",
+    "eslint-config-google": "0.7.1",
+    "eslint-plugin-node": "11.1.0",
+    "nodemon": "3.0.2",
+    "typescript": "5.2.2"
   }
 }

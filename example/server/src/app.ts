@@ -13,8 +13,12 @@ const { user, password, connectString } = dbConfig;
 
 const labelMap = new Map([
   ["CITIES", "CITY"],
+  ["cities", "CITY"],
   ["ROUTES", "ROUTE"],
+  ["routes", "ROUTE"],
   ["AIRPORTS", "AIRPORT"],
+  ["airports", "AIRPORT"],
+  ["located_in", "LOCATED_IN"],
 ]);
 export default function createApp() {
   const app = express();
@@ -55,7 +59,9 @@ export default function createApp() {
       });
 
       app.get("/node/:id", (req, res) => {
-        const label = labelFromId(req.params.id);
+        const label =
+          labelMap.get(labelFromId(req.params.id)) ||
+          labelFromId(req.params.id);
         const index = rowId(req.params.id);
         const query = `select v
           from graph_table (

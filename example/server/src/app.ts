@@ -1,7 +1,10 @@
 import {
   getRawGraph,
-  labelFromId,
+  eltNameFromId,
   rowId,
+  generateSchema,
+  getRawGraphFromSchema,
+  GraphSchema,
 } from "@linkurious/ogma-oracle-parser";
 import bodyParser from "body-parser";
 import cors from "cors";
@@ -9,119 +12,73 @@ import express from "express";
 import oracledb from "oracledb";
 import path from "path";
 import dbConfig from "./config";
+import { nodes, edges, graph } from "./routes";
+import { state } from "./state";
 const { user, password, connectString } = dbConfig;
-
-const labelMap = new Map([
-  ["CITIES", "CITY"],
-  ["cities", "CITY"],
-  ["ROUTES", "ROUTE"],
-  ["routes", "ROUTE"],
-  ["AIRPORTS", "AIRPORT"],
-  ["airports", "AIRPORT"],
-  ["located_in", "LOCATED_IN"],
-]);
-export default function createApp() {
-  const app = express();
-  oracledb
-    .getConnection({
-      user,
-      password,
-      connectString,
-    })
-    .then((conn) => {
-      app.use(bodyParser.urlencoded({ extended: true }));
-      app.use(bodyParser.json());
-      app.use(
-        cors({
-          origin: "*",
-        })
-      );
-      app.use(
-        "/",
-        express.static(path.resolve(__dirname, "../../client/dist"))
-      );
-      app.get("/expand/:id", (req, res) => {
-        const label =
-          labelMap.get(labelFromId(req.params.id)) ||
-          labelFromId(req.params.id);
-        const index = rowId(req.params.id);
-        const query = `select v, e
-        from graph_table (
-            openflights_graph
-            match (v1 is ${label})-[e]-(v2)
-            where (JSON_VALUE(VERTEX_ID(v1), ''$.KEY_VALUE.ID'') = ${index})
-            columns (
-              VERTEX_ID(v2) as v,
-              EDGE_ID(e) as e
-              )
-          )`;
-        return getRawGraph({ query, conn }).then((r) => res.json(r));
-      });
-
-      app.get("/node/:id", (req, res) => {
-        const label =
-          labelMap.get(labelFromId(req.params.id)) ||
-          labelFromId(req.params.id);
-        const index = rowId(req.params.id);
-        const query = `select v
-          from graph_table (
-            openflights_graph
-            match (v1 is ${label})
-            where (JSON_VALUE(VERTEX_ID(v1), ''$.KEY_VALUE.ID'') = ''${index}'')
-            columns (
-              VERTEX_ID(v1) as v
-            )
-          )`;
-        return getRawGraph({ query, conn }).then((r) => res.json(r));
-      });
-      app.get("/edge/:id", (req, res) => {
-        const label = labelFromId(req.params.id);
-        const index = rowId(req.params.id);
-        const query = `select e
-          from graph_table (
-            openflights_graph
-            match ()-[e1 is ${label}]-()
-            where (JSON_VALUE(EDGE_ID(e1), ''$.KEY_VALUE.ID'') = ''${index}'')
-            columns (
-              EDGE_ID(e1) as e
-            )
-          )`;
-        return getRawGraph({ query, conn }).then((r) => res.json(r));
-      });
-      app.get("/edges/:type/:pageStart/:maxResults", (req, res) => {
-        const { type, pageStart, maxResults } = req.params;
-        const query = `SELECT e
-          FROM graph_table (
-            openflights_graph
-            MATCH ()-[e1 IS ${type}]-()
-            COLUMNS (
-              EDGE_ID(e1) AS e
-            )
-          )
-          OFFSET ${pageStart} ROWS FETCH NEXT ${maxResults} ROWS ONLY`;
-        return getRawGraph({
-          query,
-          conn,
-          pageStart: 0,
-          maxResults: Number(maxResults),
-        }).then((r) => res.json(r));
-      });
-      app.get("/nodes/:type", (req, res) => {
-        const maxResults = 300;
-        const query = `select v
-          from graph_table (
-            openflights_graph
-            match (v1 is ${req.params.type})
-            columns (
-              VERTEX_ID(v1) as v
-            )
-          )
-            OFFSET 0 ROWS FETCH NEXT ${maxResults} ROWS ONLY  
-          `;
-        return getRawGraph({ query, conn, maxResults: 300 }).then((r) =>
-          res.json(r)
-        );
-      });
+async function test(conn) {
+  try {
+    const schema = await generateSchema(conn);
+    graphSchema = schema.OPENFLIGHTS_GRAPH;
+    const type = "route";
+    const maxResults = 10000;
+    const query = `select V_ID
+from graph_table (
+    openflights_graph
+    match (v1)-[e IS ${type}]-(v2)
+    columns (
+        edge_id(e) AS E_ID,
+        vertex_id(v2) AS V_ID
+    )
+)
+FETCH FIRST ${maxResults} ROWS ONLY`;
+    console.log(`query`, query);
+    // const res = await conn.execute<Lob[]>(query);
+    // console.log(`res`, JSON.stringify(res.rows, 0, 2));
+    console.time("using Direct queries");
+    const g2 = await getRawGraphFromSchema({
+      query,
+      conn,
+      schema,
+      batch: 50,
     });
+    console.log(`nodes: ${g2.nodes.length}, edges: ${g2.edges.length}`);
+    console.timeEnd("using Direct queries");
+    console.time("using CUST_SQL_TOJSON");
+    const g1 = await getRawGraph({
+      query,
+      conn,
+      pageStart: 0,
+      maxResults: Number(maxResults),
+    });
+    console.timeEnd("using CUST_SQL_TOJSON");
+    console.log(`nodes: ${g1.nodes.length}, edges: ${g1.edges.length}`);
+
+    console.groupEnd();
+  } catch (e) {
+    console.error(e);
+  }
+  return conn;
+}
+
+export default async function createApp() {
+  const app = express();
+  const conn = await oracledb.getConnection({
+    user,
+    password,
+    connectString,
+  });
+  const schema = await generateSchema(conn);
+  state.setSchema(schema);
+  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(bodyParser.json());
+  app.use(
+    cors({
+      origin: "*",
+    })
+  );
+  app.use("/", express.static(path.resolve(__dirname, "../../client/dist")));
+  nodes(app, conn);
+  edges(app, conn);
+  graph(app);
   return app;
 }

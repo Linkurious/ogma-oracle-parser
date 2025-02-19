@@ -1,66 +1,18 @@
 import Ogma from "@linkurious/ogma";
-import { labelFromId } from "@linkurious/ogma-oracle-parser";
+import { eltNameFromId } from "@linkurious/ogma-oracle-parser";
 import { Connector } from "./graph-fetch";
 import { icons } from "./icons";
-import { LeftPanel } from "./left-panel";
-import { showLoader, hideLoader } from "./loader";
+import { leftPanel } from "./left-panel";
 
-const leftPanelRoot = document.createElement("div");
-leftPanelRoot.classList.add("left-panel");
-const leftPanel = new LeftPanel(leftPanelRoot);
 const fontName = "Font Awesome 6 Free";
-const schema = {
-  nodes: {
-    city: {
-      label: "city",
-      properties: {
-        CITY: "string",
-        COUNTRY: "string",
-      },
-    },
-    airport: {
-      label: "located_in",
-      properties: {
-        NAME: "string",
-        IATA: "string",
-        ICAO: "string",
-        AIRPORT_TYPE: "string",
-        LONGITUDE: "number",
-        LATITUDE: "number",
-        ALTITUDE: "number",
-        TIMEZONE: "string",
-        TZDBTIME: "string",
-        DST: "string",
-      },
-    },
-  },
-  edges: {
-    route: {
-      label: "route",
-      properties: {
-        codeshare: "string",
-        airline_id: "string",
-        equipment: "string",
-        stops: "number",
-        distance_in_mi: "number",
-        distance_in_km: "number",
-      },
-    },
-    located_in: {
-      label: "located_in",
-      properties: {},
-    },
-  },
-};
-
-const connector = new Connector<typeof schema>(schema);
+const connector = new Connector();
 export function setupOgma(element: HTMLDivElement) {
   const ogma = new Ogma({
     container: element,
   });
   ogma.styles.addNodeRule({
     color: (node) =>
-      labelFromId(`${node.getId()}`) === "CITIES" ? "#dbd3ad" : "#d36060",
+      eltNameFromId(`${node.getId()}`) === "CITIES" ? "#dbd3ad" : "#d36060",
     icon: {
       font: fontName,
       color: "white",
@@ -70,7 +22,7 @@ export function setupOgma(element: HTMLDivElement) {
     },
     text: {
       content: (n) =>
-        labelFromId(`${n.getId()}`) === "CITIES"
+        eltNameFromId(`${n.getId()}`) === "CITIES"
           ? n.getData("CITY")
           : n.getData("IATA"),
       size: 15,
@@ -92,7 +44,7 @@ export function setupOgma(element: HTMLDivElement) {
       width: 2,
     },
   });
-  ogma.layers.addLayer(leftPanelRoot);
+  ogma.layers.addLayer(leftPanel.getRootElement());
   ogma.events.on("doubleclick", (evt) => {
     if (!evt.target || !evt.target.isNode) return;
     const nodeId = evt.target.getId() as string;
@@ -117,30 +69,5 @@ export function setupOgma(element: HTMLDivElement) {
     if (!evt.target) return leftPanel.clear();
     leftPanel.setGraphElement(evt.target);
   });
-  showLoader("Loading Airports and Cities");
-  return Promise.all([
-    connector.fetchNodesByType("city"),
-    connector.fetchNodesByType("airport"),
-  ])
-    .then(([cities, airports]) =>
-      Promise.all([ogma.addNodes(cities), ogma.addNodes(airports)])
-    )
-    .then(() => {
-      showLoader("Loading Routes");
-      return Promise.all([
-        connector.fetchEdgesByType("located_in"),
-        connector.fetchEdgesByType("route"),
-      ]);
-    })
-    .then(([located, route]) => {
-      hideLoader();
-      return ogma.addEdges(located.concat(route), { ignoreInvalid: true });
-    })
-    .then(() => {
-      return ogma.layouts.force({ locate: true, gpu: true });
-    })
-    .catch((e) => {
-      showLoader(`Something went wrong: ${e.message}`);
-      throw e;
-    });
+  return ogma;
 }

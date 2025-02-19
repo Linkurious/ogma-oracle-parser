@@ -79,3 +79,28 @@ body {
 .loader.active {
   display: flex;
 }
+.graphs{
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.graphs>button{
+  padding: 1em;
+  background-color: rgba(200, 200, 200, 0.4);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.graphs>button:hover{
+  background-color: rgba(200, 200, 200, 0.6);
+}
+.graphs>button:active{
+  background-color: rgba(200, 200, 200, 0.8);
+}
+.hidden{
+  display: none;
+}

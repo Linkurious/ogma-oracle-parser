@@ -31,7 +31,7 @@ export type ParserOptions<ND, ED> = {
   SQLIDtoId?: SQLIDtoIdFn;
   SQLIDfromId?: SQLIDfromIdFn;
   rowId?: (id: string) => string;
-  labelFromId?: (id: string) => string;
+  eltNameFromId?: (id: string) => string;
   parseFn?: parseFn<ND, ED>;
 };
 
@@ -72,11 +72,18 @@ export type EdgeSchema = {
     vertexColumn: string;
   };
 };
-export type Schema = {
-  [key: string]: {
-    vertices: VerticeSchema[];
-    verticeMap: Map<string, VerticeSchema>;
-    edges: EdgeSchema[];
-    edgeMap: Map<string, EdgeSchema>;
-  };
+export type GraphSchema = {
+  vertices: VerticeSchema[];
+  verticeMap: Map<string, VerticeSchema>;
+  edges: EdgeSchema[];
+  edgeMap: Map<string, EdgeSchema>;
+  labelToElement: Map<string, VerticeSchema | EdgeSchema>;
+  elementNameToLabel: Map<string, string>;
+};
+export type Schema = Record<string, GraphSchema>;
+
+export type ElementID = {
+  GRAPH_NAME: string;
+  ELEM_TABLE: string;
+  KEY_VALUE: { ID: number };
 };

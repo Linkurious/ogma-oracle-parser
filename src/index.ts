@@ -1,45 +1,16 @@
 import { RawGraph } from "@linkurious/ogma";
 import { Connection, Lob } from "oracledb";
-import { OracleResponse, ParserOptions, SQLID } from "./types";
+import {
+  ElementID,
+  OracleResponse,
+  ParserOptions,
+  Schema,
+  SQLID,
+} from "./types";
+import { SQLIDfromId, SQLIDtoId } from "./utils";
 export * from "./types";
-/**
- * Transforms an id from SQL database to a string id
- * @param rawId SQL Oracle ID
- * @returns string id
- */
-export function SQLIDtoId(sqlid: SQLID) {
-  const match = sqlid.match(/(.*)\{.+:([0-9]+)/);
-  if (!match || match.length !== 3) throw new Error("Invalid ID");
-  return `${match[1]}:${match[2]}`;
-}
-/**
- * Retrieves the elment ID in his table ID from a string id
- * @param id a string id (from SQLIDToId)
- * @returns SQL ID in table
- */
-export function rowId(id: string) {
-  const match = id.match(/(.+):(.+)/);
-  if (!match || match.length !== 3) throw new Error("Invalid ID");
-  return match[2];
-}
-/**
- * Retrieves the label from a string id
- * @param id a string id (from SQLIDToId)
- * @returns label defined in create property graph query
- */
-export function labelFromId(id: string) {
-  const match = id.match(/(.+):(.+)/);
-  if (!match || match.length !== 3) throw new Error("Invalid ID");
-  return match[1];
-}
-/**
- * Transforms a string id to a SQL ID
- * @param id a string id (from rawIdToId)
- * @returns a SQL ID
- */
-export function SQLIDfromId(id: string): SQLID {
-  return `${labelFromId(id)}{"ID":${+rowId(id)}}`;
-}
+export * from "./schema";
+export * from "./utils";
 
 /**
  * Read a lob and parse it as JSON
@@ -65,6 +36,117 @@ export function readLob<T = unknown>(lob: Lob) {
   });
 }
 
+export async function getRawGraphFromSchema<N, E>({
+  query,
+  conn,
+  schema,
+  batch,
+}: {
+  query: string;
+  conn: Connection;
+  schema: Schema;
+  batch?: number;
+}) {
+  const graph: RawGraph<N, E> = { nodes: [], edges: [] };
+  const { rows } = await conn.execute<ElementID[]>(query);
+  if (!rows) {
+    return graph;
+  }
+  return await getGraph({
+    conn,
+    ids: rows.flat(),
+    schema,
+    batch,
+  });
+}
+
+async function getGraph<N, E>({
+  conn,
+  ids,
+  schema,
+  batch = 50,
+}: {
+  conn: Connection;
+  ids: ElementID[];
+  schema: Schema;
+  batch?: number;
+}) {
+  const graph = { nodes: [], edges: [] } as RawGraph<N, E>;
+  const idsPerType: Map<string, Set<number>> = new Map();
+  let graphName = "";
+
+  for (let i = 0; i < ids.length; i++) {
+    if (!graphName) {
+      graphName = ids[i].GRAPH_NAME;
+    }
+    const table = ids[i].ELEM_TABLE;
+    const id = ids[i].KEY_VALUE.ID;
+    if (!idsPerType.has(table)) {
+      idsPerType.set(table, new Set());
+    }
+    idsPerType.get(table)!.add(id);
+  }
+
+  const graphTables = Array.from(idsPerType.keys());
+  for (let i = 0; i < graphTables.length; i++) {
+    console.log(`Getting ${graphTables[i]}`);
+    const graphTable = graphTables[i];
+    const ids = Array.from(idsPerType.get(graphTable) || []);
+    const isEdge = schema[graphName].edgeMap.has(graphTable);
+    const isVertex = schema[graphName].verticeMap.has(graphTable);
+    if (!isEdge && !isVertex) {
+      //TODO: Should throw ?
+      console.log(`Throw`);
+      throw new Error(
+        `Ogma Oracle Parser: Element ${graphTable} not found in schema`
+      );
+    }
+    const arr: unknown[] = isEdge ? graph.edges : graph.nodes;
+    const element = isEdge
+      ? schema[graphName].edgeMap.get(graphTable)!
+      : schema[graphName].verticeMap.get(graphTable)!;
+    const table = element.name;
+    const properties = Object.keys(element.properties);
+    console.log(`Type: ${table} length: ${ids.length}`);
+    if (properties.length === 0) {
+      for (let j = 0; j < ids.length; j++) {
+        arr.push({
+          id: ids[j],
+          data: {},
+        });
+      }
+    } else {
+      console.log(`Getting properties by batch of ${batch}`);
+      for (let j = 0; j < ids.length; j += batch) {
+        const slice = ids.slice(j, j + batch);
+        const req = `
+      WITH ElementIDs AS (
+      SELECT ${slice[0]} as id FROM DUAL
+      ${slice
+        .slice(1)
+        .map((id) => `UNION ALL SELECT ${id} FROM DUAL`)
+        .join("\n")}
+      )
+        SELECT ${properties.join(",")}
+        FROM ${table} e
+        JOIN ElementIDs i ON e.id = i.id`;
+        // console.time("req");
+        const { rows: data } = await conn.execute<(string | number)[]>(req);
+        // console.timeEnd("req");
+
+        for (let k = 0; k < slice.length; k++) {
+          const row = data![k];
+          const id = slice[k];
+          arr.push({
+            id,
+            data: Object.fromEntries(properties.map((key, l) => [key, row[l]])),
+          });
+        }
+      }
+    }
+  }
+  return graph;
+}
 /**
  * Parser for Oracle SQL Graph
  * @typeParam ND [Node data type](https://doc.linkurious.com/ogma/latest/tutorials/typescript/index.html#data-typing)

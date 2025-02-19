@@ -1,7 +1,7 @@
 import { Connection } from "oracledb";
 import { EdgeSchema, Schema } from "./types";
 
-export async function generate(conn: Connection): Promise<Schema> {
+export async function generateSchema(conn: Connection): Promise<Schema> {
   const schema: Schema = {};
   const { rows: elements } = await conn.execute<
     [string, string, string, string, string, string]
@@ -16,11 +16,13 @@ FROM USER_PG_ELEMENTS e JOIN USER_PG_ELEMENT_LABELS l ON e.element_name = l.elem
         vertices: [],
         edges: [],
         edgeMap: new Map(),
+        labelToElement: new Map(),
+        elementNameToLabel: new Map(),
         verticeMap: new Map(),
       };
     }
     const graph = schema[graphName];
-
+    graph.elementNameToLabel.set(elementName, label);
     if (elementKind === "VERTEX") {
       const vertex = {
         graphName,
@@ -32,6 +34,7 @@ FROM USER_PG_ELEMENTS e JOIN USER_PG_ELEMENT_LABELS l ON e.element_name = l.elem
       };
       graph.vertices.push(vertex);
       graph.verticeMap.set(elementName, vertex);
+      graph.labelToElement.set(label, vertex);
     } else {
       const edge = {
         graphName,
@@ -43,6 +46,7 @@ FROM USER_PG_ELEMENTS e JOIN USER_PG_ELEMENT_LABELS l ON e.element_name = l.elem
       } as EdgeSchema;
       graph.edges.push(edge);
       graph.edgeMap.set(elementName, edge);
+      graph.labelToElement.set(label, edge);
     }
   });
   // Find the column and alias for each

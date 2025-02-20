@@ -50,6 +50,7 @@ export type VerticeSchema = {
   graphName: string;
   elementName: string;
   label: string;
+  keyColumn: string;
   owner: string;
   name: string;
   properties: Record<string, string>;
@@ -58,6 +59,7 @@ export type EdgeSchema = {
   graphName: string;
   elementName: string;
   label: string;
+  keyColumn: string;
   owner: string;
   name: string;
   properties: Record<string, string>;

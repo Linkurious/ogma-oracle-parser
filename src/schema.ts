@@ -4,13 +4,28 @@ import { EdgeSchema, Schema } from "./types";
 export async function generateSchema(conn: Connection): Promise<Schema> {
   const schema: Schema = {};
   const { rows: elements } = await conn.execute<
-    [string, string, string, string, string, string]
+    [string, string, string, string, string, string, string]
   >(
-    `SELECT e.graph_name, e.element_name, element_kind, l.label_name,e.object_owner,e.object_name
-FROM USER_PG_ELEMENTS e JOIN USER_PG_ELEMENT_LABELS l ON e.element_name = l.element_name`
+    `
+    SELECT 
+    e.graph_name,
+    e.element_name,
+    e.element_kind,
+    l.label_name,
+    e.object_owner,
+    e.object_name,
+    k.column_name AS key_column
+FROM USER_PG_ELEMENTS e
+JOIN USER_PG_ELEMENT_LABELS l 
+    ON e.element_name = l.element_name
+JOIN USER_PG_KEYS k 
+    ON e.graph_name = k.graph_name 
+    AND e.element_name = k.element_name`
   );
+
   elements?.forEach((row) => {
-    const [graphName, elementName, elementKind, label, owner, name] = row;
+    const [graphName, elementName, elementKind, label, owner, name, keyColumn] =
+      row;
     if (!schema[graphName]) {
       schema[graphName] = {
         vertices: [],
@@ -30,6 +45,7 @@ FROM USER_PG_ELEMENTS e JOIN USER_PG_ELEMENT_LABELS l ON e.element_name = l.elem
         label,
         owner,
         name,
+        keyColumn,
         properties: {},
       };
       graph.vertices.push(vertex);
@@ -42,6 +58,7 @@ FROM USER_PG_ELEMENTS e JOIN USER_PG_ELEMENT_LABELS l ON e.element_name = l.elem
         label,
         owner,
         name,
+        keyColumn,
         properties: {},
       } as EdgeSchema;
       graph.edges.push(edge);

@@ -26,6 +26,9 @@ class State {
   idToLabel(id: string) {
     return this.getGraphSchema().elementNameToLabel.get(eltNameFromId(id));
   }
+  getIdColumn(label: string) {
+    return this.getGraphSchema().labelToElement.get(label)!.keyColumn;
+  }
 }
 
 export const state = new State({} as Schema);

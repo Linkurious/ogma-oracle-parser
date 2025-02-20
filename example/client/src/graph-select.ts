@@ -1,6 +1,8 @@
-import Ogma from "@linkurious/ogma";
+import Ogma, { RawNode } from "@linkurious/ogma";
+import { GraphSchema } from "@linkurious/ogma-oracle-parser";
 import axios from "axios";
 import { Connector } from "./graph-fetch";
+import { leftPanel } from "./left-panel";
 import { hideLoader, showLoader } from "./loader";
 
 export async function setupGraphSelect(element: HTMLDivElement, ogma: Ogma) {
@@ -12,27 +14,32 @@ export async function setupGraphSelect(element: HTMLDivElement, ogma: Ogma) {
     item.innerText = graph;
     list.appendChild(item);
     item.addEventListener("click", async () => {
-      await axios.post(`graph/${graph}`);
+      const { data: schema } = await axios.post<GraphSchema>(`graph/${graph}`);
       const connector = new Connector();
-
-      return Promise.all([
-        connector.fetchNodesByType("city"),
-        connector.fetchNodesByType("airport"),
-      ])
-        .then(([cities, airports]) =>
-          Promise.all([ogma.addNodes(cities), ogma.addNodes(airports)])
+      const nodeTypes = Object.values(schema.vertices).map((v) => v.label);
+      const edgeTypes = Object.values(schema.edges).map((e) => e.label);
+      showLoader("Loading nodes...");
+      hideGraphSelect();
+      return Promise.all(
+        nodeTypes.map((type) => connector.fetchNodesByType(type))
+      )
+        .then((nodeLists) =>
+          Promise.all(nodeLists.map((nodes) => ogma.addNodes(nodes)))
         )
         .then(() => {
-          showLoader("Loading Routes");
-          hideGraphSelect();
-          return Promise.all([
-            connector.fetchEdgesByType("located_in"),
-            connector.fetchEdgesByType("route"),
-          ]);
+          showLoader("Loading edges...");
+          return Promise.all(
+            edgeTypes.map((type) => connector.fetchEdgesByType(type))
+          );
         })
-        .then(([located, route]) => {
+        .then((edgeTypes) => {
           hideLoader();
-          return ogma.addEdges(located.concat(route), { ignoreInvalid: true });
+          leftPanel.show();
+          return Promise.all(
+            edgeTypes.map((edges) =>
+              ogma.addEdges(edges, { ignoreInvalid: true })
+            )
+          );
         })
         .then(() => {
           return ogma.layouts.force({ locate: true, gpu: true });

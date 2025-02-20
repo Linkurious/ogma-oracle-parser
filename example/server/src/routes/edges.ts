@@ -7,11 +7,12 @@ export async function edges(app: Express, conn: Connection) {
   app.get("/edge/:id", (req, res) => {
     const label = state.idToLabel(req.params.id);
     const index = rowId(req.params.id);
+    const idColumn = state.getIdColumn(label);
     const query = `select e
           from graph_table (
-            openflights_graph
+          ${state.getGraphName()}
             match ()-[e1 is ${label}]-()
-            where (JSON_VALUE(EDGE_ID(e1), ''$.KEY_VALUE.ID'') = ''${index}'')
+            where (JSON_VALUE(EDGE_ID(e1), ''$.KEY_VALUE.${idColumn}'') = ''${index}'')
             columns (
               EDGE_ID(e1) as e
             )
@@ -23,7 +24,7 @@ export async function edges(app: Express, conn: Connection) {
     const { type, pageStart, maxResults } = req.params;
     const query = `SELECT e
           FROM graph_table (
-            openflights_graph
+          ${state.getGraphName()}
             MATCH ()-[e1 IS ${type}]-()
             COLUMNS (
               EDGE_ID(e1) AS e

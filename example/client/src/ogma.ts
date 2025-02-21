@@ -1,6 +1,6 @@
 import Ogma from "@linkurious/ogma";
 import { eltNameFromId } from "@linkurious/ogma-oracle-parser";
-import { Connector } from "./graph-fetch";
+import { Connector } from "./API";
 import { icons } from "./icons";
 import { leftPanel } from "./left-panel";
 

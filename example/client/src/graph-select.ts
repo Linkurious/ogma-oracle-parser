@@ -1,7 +1,7 @@
 import Ogma from "@linkurious/ogma";
 import { GraphSchema } from "@linkurious/ogma-oracle-parser";
 import axios from "axios";
-import { Connector } from "./graph-fetch";
+import { API } from "./API";
 import { leftPanel } from "./left-panel";
 import { hideLoader, showLoader } from "./loader";
 
@@ -15,10 +15,8 @@ export async function setupGraphSelect(element: HTMLDivElement, ogma: Ogma) {
     list.appendChild(item);
     item.addEventListener("click", async () => {
       try {
-        const { data: schema } = await axios.post<GraphSchema>(
-          `graph/${graph}`
-        );
-        const connector = new Connector();
+        await axios.post<GraphSchema>(`graph/${graph}`);
+        const connector = new API();
         showLoader("Loading Graph...");
         hideGraphSelect();
         const rawGraph = await connector.fetchSubGraph();

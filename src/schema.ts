@@ -1,6 +1,21 @@
 import { Connection } from "oracledb";
 import { EdgeSchema, Schema } from "./types";
 
+function SQLTypeToType(type: string) {
+  if (type.includes("NUMBER")) {
+    return "number";
+  }
+  if (type.includes("VARCHAR")) {
+    return "string";
+  }
+  if (type.includes("DATE")) {
+    return "date";
+  }
+  if (type.includes("BOOLEAN")) {
+    return "boolean";
+  }
+  return "string";
+}
 export async function generateSchema(conn: Connection): Promise<Schema> {
   const schema: Schema = {};
   const { rows: elements } = await conn.execute<
@@ -47,6 +62,7 @@ JOIN USER_PG_KEYS k
         name,
         keyColumn,
         properties: {},
+        propertiesType: {},
       };
       graph.vertices.push(vertex);
       graph.verticeMap.set(elementName, vertex);
@@ -60,6 +76,7 @@ JOIN USER_PG_KEYS k
         name,
         keyColumn,
         properties: {},
+        propertiesType: {},
       } as EdgeSchema;
       graph.edges.push(edge);
       graph.edgeMap.set(elementName, edge);
@@ -68,12 +85,22 @@ JOIN USER_PG_KEYS k
   });
   // Find the column and alias for each
   const { rows: definitions } = await conn.execute<
-    [string, string, string, string]
+    [string, string, string, string, string]
   >(
-    `SELECT GRAPH_NAME,ELEMENT_NAME,PROPERTY_NAME,COLUMN_NAME FROM USER_PG_PROP_DEFINITIONS`
+    `
+SELECT 
+    p.GRAPH_NAME,
+    p.ELEMENT_NAME,
+    p.PROPERTY_NAME,
+    p.COLUMN_NAME,
+    l.DATA_TYPE
+FROM USER_PG_PROP_DEFINITIONS p
+LEFT JOIN USER_PG_LABEL_PROPERTIES l
+    ON p.GRAPH_NAME = l.GRAPH_NAME
+    AND p.PROPERTY_NAME = l.PROPERTY_NAME`
   );
   definitions?.forEach((row) => {
-    const [graphName, elementName, propertyName, columnName] = row;
+    const [graphName, elementName, propertyName, columnName, dataType] = row;
     const graph = schema[graphName];
     if (!graph) {
       return;
@@ -81,6 +108,7 @@ JOIN USER_PG_KEYS k
     const element =
       graph.verticeMap.get(elementName) || graph.edgeMap.get(elementName);
     element!.properties[propertyName] = columnName;
+    element!.propertiesType[propertyName] = SQLTypeToType(dataType);
   });
   // set source and destination
   const { rows: sourceDest } = await conn.execute<

@@ -1,5 +1,5 @@
-import { name } from "./package.json";
 import { defineConfig } from "vite";
+import { name } from "./package.json";
 
 export default defineConfig({
   build: {
@@ -12,7 +12,7 @@ export default defineConfig({
       output: {
         name: "OgmaOracleParser",
         globals: {
-          "@linkurious/ogma": "Ogma"
+          "@linkurious/ogma": "Ogma",
         },
       },
     },

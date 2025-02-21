@@ -5,6 +5,9 @@
   "main": "dist/ogma-oracle-parser.umd.js",
   "module": "dist/ogma-oracle-parser.umd.js",
   "types": "dist/types/index.d.ts",
+  "bin": {
+    "cli": "./dist/cli.js"
+  },
   "keywords": [
     "ogma",
     "parser",
@@ -14,7 +17,10 @@
   ],
   "scripts": {
     "prebuild": "tsc",
-    "build": "vite build",
+    "build:lib": "vite build",
+    "build:cli": "node scripts/build-cli.mjs",
+    "build": "npm run build:lib && npm run build:cli",
+    "clean": "rm -rf dist",
     "prepack": "npm run build && node scripts/clean-package.mjs",
     "lint:ci": "eslint -f checkstyle -o reports/checkstyle.xml --ext ts --ext js src ./tests/**/*.test.ts",
     "docs:api": "typedoc --plugin typedoc-plugin-markdown --out docs/api src/index.ts",
@@ -48,17 +54,18 @@
     "dist/ogma-oracle-parser.mjs",
     "dist/ogma-oracle-parser.umd.js",
     "dist/types/index.d.ts",
+    "dist/cli.js",
     "README.md"
   ],
   "exports": {
     ".": {
       "import": {
-        "default": "./dist/ogma-oracle-parser.mjs",
-        "types": "./dist/types/index.d.ts"
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/ogma-oracle-parser.mjs"
       },
       "require": {
-        "default": "./dist/ogma-oracle-parser.umd.js",
-        "types": "./dist/types/index.d.ts"
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/ogma-oracle-parser.umd.js"
       }
     }
   },
@@ -76,7 +83,12 @@
     "@linkurious/eslint-config-ogma": "^1.0.5",
     "@types/oracledb": "^6.0.3",
     "@vitest/coverage-v8": "^1.0.1",
+    "chalk": "^5.4.1",
+    "commander": "^13.1.0",
+    "dotenv": "^16.4.7",
+    "esbuild": "^0.25.0",
     "gh-pages": "^6.1.0",
+    "inquirer": "^12.4.2",
     "tsdoc-markdown": "^0.1.0",
     "typedoc": "^0.25.4",
     "typedoc-plugin-markdown": "^3.17.1",

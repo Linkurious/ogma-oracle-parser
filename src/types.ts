@@ -54,6 +54,7 @@ export type VerticeSchema = {
   owner: string;
   name: string;
   properties: Record<string, string>;
+  propertiesType: Record<string, "string" | "number" | "boolean" | "date">;
 };
 export type EdgeSchema = {
   graphName: string;
@@ -63,6 +64,7 @@ export type EdgeSchema = {
   owner: string;
   name: string;
   properties: Record<string, string>;
+  propertiesType: Record<string, "string" | "number" | "boolean" | "date">;
   source: {
     vertexTable: string;
     edgeColName: string;

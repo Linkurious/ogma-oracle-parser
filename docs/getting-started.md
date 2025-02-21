@@ -199,15 +199,33 @@ const { parse, parseLob, getRawGraph } = new OgmaOracleParser({
 });
 ```
 
-## Node and edge data types
+## Generate the typescript definition of your nodes and edges
 
-You can type the data of your nodes and edges by passing [ND](/api/classes/OgmaOracleParser.html#type-parameters) and [ED](/api/classes/OgmaOracleParser.html#type-parameters) value in the `OgmaOracleParser` constructor:
+This package provides a CLI to generate the typescript definition of your nodes and edges. You can use it like this:
+
+```sh
+npx ogma-oracle-parser build ./outpath.ts
+```
+
+If you have a .env file in the folder from where you are running the command, the cli will read it and fill up the connection default values. Here is an example of `.env` file:
+
+```sh
+DB_HOST_DEV=localhost
+DB_USER_DEV=graphuser
+DB_PASS_DEV='Welcome_1234#'
+DB_PORT=1521
+DB_SERVICE=freepdb1
+NODE_PORT=1337
+```
+
+You can then use thoose types with Ogma: 
 
 ```ts
-type NodeDataType = { name: string; id: number };
-type EdgeDataType = { score: number };
-const { parse, parseLob, getRawGraph } = new OgmaOracleParser<
-  NodeDataType,
-  EdgeDataType
->();
+import { GraphTypeMap } from "./generated-types";
+
+function fetchSubGraph<T extends keyof GraphTypeMap>() {
+  return axios.get<GraphTypeMap[T]["graph"]>(`nodes`).then(({ data }) => {
+    return data;
+  });
+}
 ```

@@ -1,6 +1,11 @@
 import "./style.css";
 import axios from "axios";
-import { setupGraphSelect } from "./graph-select.ts";
+import {
+  setupGraphSelect,
+  setupDBForm,
+  showGraphSelect,
+  showDBForm,
+} from "./graph-select.ts";
 import { leftPanel } from "./left-panel.ts";
 import { hideLoader, setupLoader } from "./loader.ts";
 import { setupOgma } from "./ogma.ts";
@@ -25,4 +30,7 @@ setupLoader(app);
 hideLoader();
 leftPanel.hide();
 const ogma = setupOgma(document.querySelector<HTMLDivElement>("#ogma")!);
-setupGraphSelect(app, ogma);
+await setupGraphSelect(app, ogma);
+setupDBForm(app, ogma);
+// showGraphSelect();
+showDBForm();

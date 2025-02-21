@@ -9,4 +9,18 @@ export async function graph(app: Express) {
     state.setGraphName(req.params.name);
     return res.json(state.getGraphSchema());
   });
+
+  app.post("/database", async (req, res) => {
+    const { host, port, user, password, service } = req.body;
+    console.log(`req.body`, req.body);
+    await state.connect({
+      user,
+      password,
+      host,
+      port,
+      service,
+    });
+    // state.setGraphName(req.params.name);
+    return res.json(state.getGraphSchema());
+  });
 }

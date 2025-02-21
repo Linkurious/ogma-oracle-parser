@@ -1,11 +1,10 @@
 import Ogma from "@linkurious/ogma";
 import { eltNameFromId } from "@linkurious/ogma-oracle-parser";
-import { Connector } from "./API";
+import { API } from "./API";
 import { icons } from "./icons";
 import { leftPanel } from "./left-panel";
 
 const fontName = "Font Awesome 6 Free";
-const connector = new Connector();
 export function setupOgma(element: HTMLDivElement) {
   const ogma = new Ogma({
     container: element,
@@ -50,7 +49,7 @@ export function setupOgma(element: HTMLDivElement) {
     const nodeId = evt.target.getId() as string;
     highlighted.clearNodes();
     highlighted.clearEdges();
-    connector.expand(nodeId).then(({ nodes, edges }) => {
+    API.expand(nodeId).then(({ nodes, edges }) => {
       const nodeIds = nodes.map((n) => n.id) as string[];
       const edgeIds = edges.map((e) => e.id) as string[];
       return ogma

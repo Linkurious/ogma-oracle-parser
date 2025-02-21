@@ -79,7 +79,7 @@ body {
 .loader.active {
   display: flex;
 }
-.graphs{
+.graphs,.db-form{
   position: absolute;
   width: 100vw;
   height: 100vh;
@@ -105,4 +105,12 @@ body {
 }
 .hidden{
   display: none;
+}
+.db-form>form{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+}
+.db-form>form>button{
+  grid-column-start: 2;
 }

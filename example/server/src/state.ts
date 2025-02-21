@@ -1,12 +1,15 @@
-import { eltNameFromId, type Schema } from "@linkurious/ogma-oracle-parser";
+import {
+  eltNameFromId,
+  generateSchema,
+  type Schema,
+} from "@linkurious/ogma-oracle-parser";
+import oracledb, { type Connection } from "oracledb";
 
 class State {
   private graphName: string;
   private schema: Schema;
-  constructor(schema: Schema) {
-    this.schema = schema;
-    this.graphName = Object.keys(schema)[0];
-  }
+  private connection: Connection;
+  constructor() {}
   setGraphName(graphName: string) {
     this.graphName = graphName;
   }
@@ -29,6 +32,31 @@ class State {
   getIdColumn(label: string) {
     return this.getGraphSchema().labelToElement.get(label)!.keyColumn;
   }
+  async connect({
+    user,
+    password,
+    host,
+    port,
+    service,
+  }: {
+    user: string;
+    password: string;
+    host: string;
+    port: number;
+    service: string;
+  }) {
+    const connectString = host + ":" + port + "/" + service;
+    this.connection = await oracledb.getConnection({
+      user,
+      password,
+      connectString,
+    });
+    this.schema = await generateSchema(this.connection);
+    this.graphName = Object.keys(this.schema)[0];
+  }
+  getConnection() {
+    return this.connection;
+  }
 }
 
-export const state = new State({} as Schema);
+export const state = new State();

@@ -3,11 +3,12 @@ import { Express } from "express";
 import { Connection } from "oracledb";
 import { state } from "../state";
 
-export async function nodes(app: Express, conn: Connection) {
+export async function nodes(app: Express) {
   app.get("/expand/:id", (req, res) => {
     const label = state.idToLabel(req.params.id);
     const index = rowId(req.params.id);
     const idColumn = state.getIdColumn(label);
+    const conn = state.getConnection();
     const query = `select v, e
       from graph_table (
           ${state.getGraphName()}
@@ -26,6 +27,7 @@ export async function nodes(app: Express, conn: Connection) {
     const label = state.idToLabel(req.params.id);
     const idColumn = state.getIdColumn(label);
     const index = rowId(req.params.id);
+    const conn = state.getConnection();
     const query = `select v
         from graph_table (
           ${state.getGraphName()}
@@ -40,6 +42,7 @@ export async function nodes(app: Express, conn: Connection) {
 
   app.get("/nodes/:type", (req, res) => {
     const maxResults = 300;
+    const conn = state.getConnection();
     const query = `select v
         from graph_table (
           ${state.getGraphName()}
@@ -55,6 +58,7 @@ export async function nodes(app: Express, conn: Connection) {
 
   app.get("/nodes", (req, res) => {
     const maxResults = 600;
+    const conn = state.getConnection();
     const query = `select v1, v2, e
         from graph_table (
           ${state.getGraphName()}

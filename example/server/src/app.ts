@@ -1,21 +1,17 @@
 import {
   getRawGraph,
-  eltNameFromId,
-  rowId,
   generateSchema,
   getRawGraphFromSchema,
-  GraphSchema,
 } from "@linkurious/ogma-oracle-parser";
 import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
-import oracledb from "oracledb";
 import path from "path";
 import dbConfig from "./config";
 import { nodes, edges, graph } from "./routes";
 import { state } from "./state";
-const { user, password, connectString } = dbConfig;
-async function test(conn) {
+const { user, password, host, port, service } = dbConfig;
+/*async function test(conn) {
   try {
     const schema = await generateSchema(conn);
     graphSchema = schema.OPENFLIGHTS_GRAPH;
@@ -59,16 +55,16 @@ FETCH FIRST ${maxResults} ROWS ONLY`;
   }
   return conn;
 }
-
+*/
 export default async function createApp() {
   const app = express();
-  const conn = await oracledb.getConnection({
+  await state.connect({
     user,
     password,
-    connectString,
+    host,
+    port,
+    service,
   });
-  const schema = await generateSchema(conn);
-  state.setSchema(schema);
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
   app.use(
@@ -77,8 +73,8 @@ export default async function createApp() {
     })
   );
   app.use("/", express.static(path.resolve(__dirname, "../../client/dist")));
-  nodes(app, conn);
-  edges(app, conn);
+  nodes(app);
+  edges(app);
   graph(app);
   return app;
 }

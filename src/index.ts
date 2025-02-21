@@ -89,14 +89,12 @@ async function getGraph<N, E>({
 
   const graphTables = Array.from(idsPerType.keys());
   for (let i = 0; i < graphTables.length; i++) {
-    console.log(`Getting ${graphTables[i]}`);
     const graphTable = graphTables[i];
     const ids = Array.from(idsPerType.get(graphTable) || []);
     const isEdge = schema[graphName].edgeMap.has(graphTable);
     const isVertex = schema[graphName].verticeMap.has(graphTable);
     if (!isEdge && !isVertex) {
       //TODO: Should throw ?
-      console.log(`Throw`);
       throw new Error(
         `Ogma Oracle Parser: Element ${graphTable} not found in schema`
       );
@@ -107,7 +105,6 @@ async function getGraph<N, E>({
       : schema[graphName].verticeMap.get(graphTable)!;
     const table = element.name;
     const properties = Object.keys(element.properties);
-    console.log(`Type: ${table} length: ${ids.length}`);
     if (properties.length === 0) {
       for (let j = 0; j < ids.length; j++) {
         arr.push({
@@ -116,7 +113,6 @@ async function getGraph<N, E>({
         });
       }
     } else {
-      console.log(`Getting properties by batch of ${batch}`);
       for (let j = 0; j < ids.length; j += batch) {
         const slice = ids.slice(j, j + batch);
         const req = `

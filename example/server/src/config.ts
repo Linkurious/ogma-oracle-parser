@@ -5,7 +5,7 @@ let host = "";
 let user = "";
 let password = "";
 
-if (true || env === "dev") {
+if (env === "dev") {
   host = process.env.DB_HOST_DEV!;
   user = process.env.DB_USER_DEV!;
   password = process.env.DB_PASS_DEV!;

@@ -21,7 +21,6 @@ export async function edges(app: Express) {
     return getRawGraph({ query, conn }).then((r) => res.json(r));
   });
   app.get("/edges/:type/:pageStart/:maxResults", (req, res) => {
-    //TODO: index on database the id column
     const { type, pageStart, maxResults } = req.params;
     const conn = state.getConnection();
     const query = `SELECT e

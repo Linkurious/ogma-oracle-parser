@@ -12,7 +12,6 @@ export async function graph(app: Express) {
 
   app.post("/database", async (req, res) => {
     const { host, port, user, password, service } = req.body;
-    console.log(`req.body`, req.body);
     await state.connect({
       user,
       password,
@@ -20,7 +19,6 @@ export async function graph(app: Express) {
       port,
       service,
     });
-    // state.setGraphName(req.params.name);
     return res.json(state.getGraphSchema());
   });
 }

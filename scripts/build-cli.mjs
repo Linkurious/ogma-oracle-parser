@@ -1,10 +1,10 @@
 import { build } from "esbuild";
 
 build({
-  entryPoints: ["cli/cli.ts"], // Change to your main file
+  entryPoints: ["cli/cli.ts"],
   outfile: "dist/cli.js",
-  platform: "node", // Ensures Node.js compatibility
-  bundle: true, // Enables bundling
-  minify: true, // Minifies output
-  external: ["fs", "path"], // Keeps built-in Node.js modules external
+  platform: "node",
+  bundle: true,
+  minify: true,
+  external: ["fs", "path"],
 }).catch(() => process.exit(1));

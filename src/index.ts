@@ -189,7 +189,7 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
   /**
    * Read a lob and parse it as [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
    * @param lob
-   * @returns
+   * @returns A [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
    */
   parseLob<N = ND, E = ED>(lob: Lob) {
     return readLob<OracleResponse<N, E> & { numResults: number }>(lob).then(
@@ -252,6 +252,27 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
 }
 const parser = new OgmaOracleParser({ SQLIDtoId, SQLIDfromId });
 export default parser;
+/**
+ * Takes an [OracleResponse](/api/modules.html#oracleresponse) and returns a RawGraph
+ * @param param0 The JSON returned by CUST_SQLGRAPH_JSON
+ * @returns A [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
+ */
 export const parse = parser.parse.bind(parser);
+/**
+ * Read a lob and parse it as [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
+ * @param lob
+ * @returns A [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
+ */
 export const parseLob = parser.parseLob.bind(parser);
+/**
+ * Executes a query (wrapped in CUST_SQLGRAPH_JSON)
+ * and returns a [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
+ * @param options
+ * @param options.query The query to execute
+ * @param options.conn The connection to use
+ * @param options.pageStart The page to start from (default 0)
+ * @param options.pageLength The page length (default 32000)
+ * @param options.maxResults The maximum number of elements returned (nodes + edges) (default Infinity)
+ * @returns a RawgGraph
+ */
 export const getRawGraph = parser.getRawGraph.bind(parser);

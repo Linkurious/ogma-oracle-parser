@@ -16,6 +16,11 @@ function SQLTypeToType(type: string) {
   }
   return "string";
 }
+/**
+ * Generates a schema from the database
+ * @param conn Connection The connection to use
+ * @returns A [Schema](/api/modules.html#schema) representing the graphs in the database
+ */
 export async function generateSchema(conn: Connection): Promise<Schema> {
   const schema: Schema = {};
   const { rows: elements } = await conn.execute<

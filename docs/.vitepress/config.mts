@@ -31,8 +31,12 @@ const sidebar: DefaultTheme.Sidebar = {
       link: "api/classes/OgmaOracleParser",
     },
     {
+      text: "Functions",
+      link: "api/functions",
+    },
+    {
       text: "Types",
-      link: "api/modules",
+      link: "api/types",
     },
   ],
 };

@@ -43,6 +43,18 @@ alter table openflights_airports add constraint openflights_airports_city_fk for
 alter table openflights_routes add constraint openflights_routes_src_airport_fk foreign key (src_airport_id) references openflights_airports(id);
 alter table openflights_routes add constraint openflights_routes_dest_airport_fk foreign key (dest_airport_id) references openflights_airports(id);
 
+-- Indexes on edge table foreign keys for faster lookups
+CREATE INDEX idx_routes_src ON openflights_routes (src_airport_id);
+CREATE INDEX idx_routes_dest ON openflights_routes (dest_airport_id);
+CREATE INDEX idx_airports_city ON openflights_airports (city_id);
+
+-- Index frequently filtered properties (if applicable)
+CREATE INDEX idx_routes_airline ON openflights_routes (airline_id);
+CREATE INDEX idx_routes_distance ON openflights_routes (distance_in_km);
+CREATE INDEX idx_routes_stops ON openflights_routes (stops);
+
+
+
 -- Bank dataset
 DROP TABLE IF EXISTS BANK_ACCOUNTS;
 CREATE TABLE BANK_ACCOUNTS (

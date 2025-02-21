@@ -53,8 +53,6 @@ CREATE INDEX idx_routes_airline ON openflights_routes (airline_id);
 CREATE INDEX idx_routes_distance ON openflights_routes (distance_in_km);
 CREATE INDEX idx_routes_stops ON openflights_routes (stops);
 
-
-
 -- Bank dataset
 DROP TABLE IF EXISTS BANK_ACCOUNTS;
 CREATE TABLE BANK_ACCOUNTS (

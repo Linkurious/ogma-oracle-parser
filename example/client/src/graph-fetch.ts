@@ -8,6 +8,10 @@ export class Connector<S extends DBSchema> {
     this.schema = schema;
   }
 
+  fetchSubGraph(): Promise<RawNode[]> {
+    return axios.get(`nodes`).then(({ data }) => data);
+  }
+
   fetchNodesByType<
     TableName extends string & keyof S["nodes"],
     NodeData extends S["nodes"][TableName]["properties"],

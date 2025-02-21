@@ -50,9 +50,23 @@ export async function nodes(app: Express, conn: Connection) {
         )
           OFFSET 0 ROWS FETCH NEXT ${maxResults} ROWS ONLY  
         `;
-    console.log(`query`, query);
-    return getRawGraph({ query, conn, maxResults: 300 }).then((r) =>
-      res.json(r)
-    );
+    return getRawGraph({ query, conn, maxResults }).then((r) => res.json(r));
+  });
+
+  app.get("/nodes", (req, res) => {
+    const maxResults = 600;
+    const query = `select v1, v2, e
+        from graph_table (
+          ${state.getGraphName()}
+          match (v1)-[e]-(v2)
+          columns (
+            VERTEX_ID(v1) as v1,
+            VERTEX_ID(v2) as v2,
+            EDGE_ID(e) as e
+          )
+        )
+          OFFSET 0 ROWS FETCH NEXT ${maxResults} ROWS ONLY  
+        `;
+    return getRawGraph({ query, conn, maxResults }).then((r) => res.json(r));
   });
 }

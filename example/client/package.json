@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@linkurious/ogma": "5.1.4",
-    "@linkurious/ogma-oracle-parser": "^1.0.0",
+    "@linkurious/ogma-oracle-parser": "file:../../",
     "axios": "1.7.7"
   }
 }

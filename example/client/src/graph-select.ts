@@ -1,19 +1,23 @@
 import Ogma from "@linkurious/ogma";
-import { GraphSchema } from "@linkurious/ogma-oracle-parser";
+import { GraphSchema, parseSchema } from "@linkurious/ogma-oracle-parser";
 import axios from "axios";
 import { API } from "./API";
 import { leftPanel } from "./left-panel";
 import { hideLoader, showLoader } from "./loader";
+import { Visualisation } from "./visualisation";
 
 const list = document.createElement("div");
 const formContainer = document.createElement("div");
 
-export async function setupGraphSelect(element: HTMLDivElement, ogma: Ogma) {
+export async function setupGraphSelect(
+  element: HTMLDivElement,
+  vis: Visualisation
+) {
   element.appendChild(list);
   element.appendChild(formContainer);
-  await refreshGraphSelect(ogma);
+  await refreshGraphSelect(vis);
 }
-async function refreshGraphSelect(ogma: Ogma) {
+async function refreshGraphSelect(vis: Visualisation) {
   const { data: graphs } = await axios.get<string[]>(`graphs`);
   list.innerHTML = "";
   list.classList.add("graphs");
@@ -24,10 +28,13 @@ async function refreshGraphSelect(ogma: Ogma) {
     list.appendChild(item);
     item.addEventListener("click", async () => {
       try {
-        await axios.post<GraphSchema>(`graph/${graph}`);
+        const response = await axios.post<GraphSchema>(`graph/${graph}`);
+        const schema = parseSchema(response.data);
         showLoader("Loading Graph...");
         hideGraphSelect();
+        const ogma = vis.getOgma();
         const rawGraph = await API.fetchSubGraph();
+        await vis.updateStyles(schema);
         await ogma.setGraph(rawGraph);
         hideLoader();
         leftPanel.show();
@@ -54,7 +61,7 @@ export function showGraphSelect() {
 export function hideGraphSelect() {
   list.classList.add("hidden");
 }
-export function setupDBForm(element: HTMLDivElement, ogma: Ogma) {
+export function setupDBForm(element: HTMLDivElement, vis: Visualisation) {
   formContainer.classList.add("hidden");
   formContainer.classList.add("db-form");
   const title = document.createElement("h2");
@@ -86,14 +93,14 @@ export function setupDBForm(element: HTMLDivElement, ogma: Ogma) {
     const password = formData.get("password") as string;
     const service = formData.get("service") as string;
     try {
-      await axios.post<GraphSchema>(`database`, {
+      await axios.post(`database`, {
         host,
         port,
         user,
         password,
         service,
       });
-      await refreshGraphSelect(ogma);
+      await refreshGraphSelect(vis);
       showGraphSelect();
       hideDBForm();
     } catch (e) {

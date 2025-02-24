@@ -1,5 +1,5 @@
 import { Connection } from "oracledb";
-import { EdgeSchema, Schema } from "./types";
+import { EdgeSchema, GraphSchema, Schema } from "./types";
 
 function SQLTypeToType(type: string) {
   if (type.includes("NUMBER")) {
@@ -143,6 +143,34 @@ LEFT JOIN USER_PG_LABEL_PROPERTIES l
       edgeColName,
       vertexColumn,
     };
+  });
+  return schema;
+}
+
+export function parseSchema(str: string | Record<string, unknown>) {
+  const schema = typeof str === "string" ? JSON.parse(str) : str;
+  let graphSchemas: GraphSchema[];
+  if (schema.vertices) {
+    graphSchemas = [schema as GraphSchema];
+  } else {
+    graphSchemas = Object.values(schema);
+  }
+
+  graphSchemas.forEach((graphSchema) => {
+    graphSchema.elementNameToLabel = new Map();
+    graphSchema.labelToElement = new Map();
+    graphSchema.edgeMap = new Map();
+    graphSchema.verticeMap = new Map();
+    graphSchema.vertices.forEach((vertex) => {
+      graphSchema.elementNameToLabel.set(vertex.elementName, vertex.label);
+      graphSchema.labelToElement.set(vertex.label, vertex);
+      graphSchema.verticeMap.set(vertex.elementName, vertex);
+    });
+    graphSchema.edges.forEach((edge) => {
+      graphSchema.elementNameToLabel.set(edge.elementName, edge.label);
+      graphSchema.labelToElement.set(edge.label, edge);
+      graphSchema.edgeMap.set(edge.elementName, edge);
+    });
   });
   return schema;
 }

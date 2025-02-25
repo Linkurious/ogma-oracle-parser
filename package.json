@@ -6,7 +6,7 @@
   "module": "dist/ogma-oracle-parser.umd.js",
   "types": "dist/types/index.d.ts",
   "bin": {
-    "cli": "./dist/cli.js"
+    "ogma-oracle-types": "./dist/cli.js"
   },
   "keywords": [
     "ogma",

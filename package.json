@@ -61,12 +61,12 @@
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/types/index.d.ts",
-        "default": "./dist/ogma-oracle-parser.mjs"
+        "default": "./dist/ogma-oracle-parser.mjs",
+        "types": "./dist/types/index.d.ts"
       },
       "require": {
-        "types": "./dist/types/index.d.ts",
-        "default": "./dist/ogma-oracle-parser.umd.js"
+        "default": "./dist/ogma-oracle-parser.umd.js",
+        "types": "./dist/types/index.d.ts"
       }
     }
   },

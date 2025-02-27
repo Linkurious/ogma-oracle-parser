@@ -1,4 +1,3 @@
-import Ogma from "@linkurious/ogma";
 import { GraphSchema, parseSchema } from "@linkurious/ogma-oracle-parser";
 import axios from "axios";
 import { API } from "./API";

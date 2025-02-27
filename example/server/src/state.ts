@@ -3,7 +3,7 @@ import {
   generateSchema,
   type Schema,
 } from "@linkurious/ogma-oracle-parser";
-import oracledb, { type Connection } from "oracledb";
+import oracledb, { Connection } from "oracledb";
 
 class State {
   private graphName: string;
@@ -51,6 +51,7 @@ class State {
       password,
       connectString,
     });
+    // @ts-ignore
     this.schema = await generateSchema(this.connection);
     this.graphName = Object.keys(this.schema)[0];
   }

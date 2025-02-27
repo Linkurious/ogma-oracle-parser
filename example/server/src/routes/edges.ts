@@ -1,6 +1,5 @@
 import { getRawGraph, rowId } from "@linkurious/ogma-oracle-parser";
 import { Express } from "express";
-import { Connection } from "oracledb";
 import { state } from "../state";
 
 export async function edges(app: Express) {
@@ -13,11 +12,12 @@ export async function edges(app: Express) {
           from graph_table (
           ${state.getGraphName()}
             match ()-[e1 is ${label}]-()
-            where (JSON_VALUE(EDGE_ID(e1), ''$.KEY_VALUE.${idColumn}'') = ''${index}'')
+            where (JSON_VALUE(EDGE_ID(e1), '$.KEY_VALUE.${idColumn}') = '${index}')
             columns (
               EDGE_ID(e1) as e
             )
           )`;
+    // @ts-ignore
     return getRawGraph({ query, conn }).then((r) => res.json(r));
   });
   app.get("/edges/:type/:pageStart/:maxResults", (req, res) => {
@@ -34,6 +34,7 @@ export async function edges(app: Express) {
           OFFSET ${pageStart} ROWS FETCH NEXT ${maxResults} ROWS ONLY`;
     return getRawGraph({
       query,
+      // @ts-ignoreS
       conn,
       pageStart: 0,
       maxResults: Number(maxResults),

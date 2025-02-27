@@ -6,5 +6,5 @@ build({
   platform: "node",
   bundle: true,
   minify: true,
-  external: ["fs", "path"],
+  external: ["fs", "path", "oracledb"],
 }).catch(() => process.exit(1));

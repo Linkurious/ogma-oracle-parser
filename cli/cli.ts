@@ -122,7 +122,7 @@ program
         default: defaults.user,
       },
       {
-        type: "input",
+        type: "password",
         name: "password",
         message: "What password should I use?",
         default: defaults.password,

@@ -1,6 +1,7 @@
 import { RawGraph } from "@linkurious/ogma";
 import { Connection, Lob } from "oracledb";
 import {
+  EdgeSchema,
   ElementID,
   OracleResponse,
   ParserOptions,
@@ -11,6 +12,7 @@ import { SQLIDfromId, SQLIDtoId } from "./utils";
 export * from "./types";
 export * from "./schema";
 export * from "./utils";
+const BIND_IN = 3001;
 
 /**
  * Read a lob and parse it as JSON
@@ -36,16 +38,24 @@ export function readLob<T = unknown>(lob: Lob) {
   });
 }
 
+/**
+ * Executes a query
+ * and returns a [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
+ * This function does not use CUST_SQL_GRAPH_TO_JSON but a schema.
+ * @param options
+ * @param options.query The query to execute
+ * @param options.conn The connection to use
+ * @param options.schema The schema to use
+ * @returns a RawgGraph
+ */
 export async function getRawGraphFromSchema<N, E>({
   query,
   conn,
   schema,
-  batch,
 }: {
   query: string;
   conn: Connection;
   schema: Schema;
-  batch?: number;
 }) {
   const graph: RawGraph<N, E> = { nodes: [], edges: [] };
   const { rows } = await conn.execute<ElementID[]>(query);
@@ -56,7 +66,6 @@ export async function getRawGraphFromSchema<N, E>({
     conn,
     ids: rows.flat(),
     schema,
-    batch,
   });
 }
 
@@ -64,39 +73,33 @@ async function getGraph<N, E>({
   conn,
   ids,
   schema,
-  batch = 50,
 }: {
   conn: Connection;
   ids: ElementID[];
   schema: Schema;
-  batch?: number;
 }) {
   const graph = { nodes: [], edges: [] } as RawGraph<N, E>;
-  const idsPerType: Map<string, Set<number>> = new Map();
+  const idsPerType: Map<string, Set<Record<string, number>>> = new Map();
   let graphName = "";
-
   for (let i = 0; i < ids.length; i++) {
     if (!graphName) {
       graphName = ids[i].GRAPH_NAME;
     }
     const table = ids[i].ELEM_TABLE;
-    const id = ids[i].KEY_VALUE.ID;
+    const id = ids[i].KEY_VALUE;
     if (!idsPerType.has(table)) {
       idsPerType.set(table, new Set());
     }
     idsPerType.get(table)!.add(id);
   }
-
   const graphTables = Array.from(idsPerType.keys());
   for (let i = 0; i < graphTables.length; i++) {
     const graphTable = graphTables[i];
-    const ids = Array.from(idsPerType.get(graphTable) || []);
     const isEdge = schema[graphName].edgeMap.has(graphTable);
     const isVertex = schema[graphName].verticeMap.has(graphTable);
     if (!isEdge && !isVertex) {
-      //TODO: Should throw ?
       throw new Error(
-        `Ogma Oracle Parser: Element ${graphTable} not found in schema`
+        `Ogma Oracle Parser: Element ${graphTable} from graph ${graphName} not found in schema`
       );
     }
     const arr: unknown[] = isEdge ? graph.edges : graph.nodes;
@@ -104,42 +107,79 @@ async function getGraph<N, E>({
       ? schema[graphName].edgeMap.get(graphTable)!
       : schema[graphName].verticeMap.get(graphTable)!;
     const table = element.name;
-    const properties = Object.keys(element.properties);
-    if (properties.length === 0) {
-      for (let j = 0; j < ids.length; j++) {
-        arr.push({
-          id: ids[j],
-          data: {},
-        });
-      }
-    } else {
-      for (let j = 0; j < ids.length; j += batch) {
-        const slice = ids.slice(j, j + batch);
-        const req = `
-      WITH ElementIDs AS (
-      SELECT ${slice[0]} as id FROM DUAL
-      ${slice
-        .slice(1)
-        .map((id) => `UNION ALL SELECT ${id} FROM DUAL`)
-        .join("\n")}
-      )
-        SELECT ${properties.join(",")}
-        FROM ${table} e
-        JOIN ElementIDs i ON e.id = i.id`;
-        // console.time("req");
-        const { rows: data } = await conn.execute<(string | number)[]>(req);
-        // console.timeEnd("req");
+    const ids = Array.from(idsPerType.get(graphTable) || []).map(
+      (objId) => objId[element.keyColumn] as number
+    );
 
-        for (let k = 0; k < slice.length; k++) {
-          const row = data![k];
-          const id = slice[k];
+    // Construct the query using the TABLE function to bind the array
+    await conn.execute<(string | number)[]>(
+      `CREATE OR REPLACE TYPE NUMBER_TABLE AS TABLE OF NUMBER`,
+      []
+    );
+    const properties: string[] = [element.keyColumn];
+    if (isEdge) {
+      const edge = element as EdgeSchema;
+      properties.push(edge.source.edgeColName);
+      properties.push(edge.destination.edgeColName);
+    }
+    Object.keys(element.properties).forEach((key) => {
+      properties.push(key);
+    });
+    const query = `
+       SELECT ${properties.join(",")}
+        FROM ${table}
+        WHERE ${element.keyColumn} MEMBER OF :idArray
+      `;
+    // Execute the query with the bound array.
+    // Note: oracledb.NUMBER should be replaced with the appropriate type for your IDs.
+    const result = await conn.execute<(string | number)[]>(
+      query,
+      {
+        idArray: { type: "NUMBER_TABLE", dir: BIND_IN, val: ids },
+      },
+      {
+        resultSet: true, // Enable cursor mode to fetch rows in batches
+        prefetchRows: 100, // Adjust the prefetch size as needed
+      }
+    );
+    const resultSet = result.resultSet!;
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const rows = await resultSet.getRows(100);
+      if (!rows || rows.length === 0) {
+        break; // No more rows to fetch
+      }
+      if (isEdge) {
+        const edge = element as EdgeSchema;
+        for (let k = 0; k < rows.length; k++) {
+          const row = rows[k];
+          const id = `${element.elementName}:${row[0]}`;
+          const source = `${edge.source.vertexTable}:${row[1]}`;
+          const target = `${edge.destination.vertexTable}:${row[2]}`;
           arr.push({
             id,
-            data: Object.fromEntries(properties.map((key, l) => [key, row[l]])),
+            source,
+            target,
+            data: Object.fromEntries(
+              properties.map((key, l) => [key, row[l + 3]])
+            ),
+          });
+        }
+      } else {
+        for (let k = 0; k < rows.length; k++) {
+          const row = rows[k];
+          const id = `${element.elementName}:${row[0]}`;
+          arr.push({
+            id,
+            data: Object.fromEntries(
+              properties.map((key, l) => [key, row[l + 1]])
+            ),
           });
         }
       }
     }
+    await resultSet.close();
   }
   return graph;
 }

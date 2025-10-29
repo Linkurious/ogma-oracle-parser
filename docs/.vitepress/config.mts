@@ -51,6 +51,7 @@ export default defineConfig({
     logo: "/logo-small.svg",
     nav: [
       { text: "Getting started", link: "/getting-started" },
+      { text: "CLI Tool", link: "/cli" },
       { text: "Example", link: "/example" },
       { text: "API", link: "/api/classes/OgmaOracleParser" },
     ],

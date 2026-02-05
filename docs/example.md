@@ -1,6 +1,6 @@
 # Example
 
-We provide a complete example on how to setup your Oracle Database as a graph database, connect to it, retrieve elements and display them in Ogma. And the best is that you can make it work in minutes.
+We provide a complete example on how to setup your Oracle AI Database as a graph database, connect to it, retrieve elements and display them in Ogma. And the best is that you can make it work in minutes.
 Let's get started:
 
 ```sh
@@ -24,7 +24,7 @@ ll dataset
 
 Now, you can use `Podman` to:
 
-- pull the Oracle Database Free 23ai **full** container image from the [Oracle Container Registry](https://container-registry.oracle.com/)
+- pull the *Oracle AI Database Free 26ai **full** Container Image* from the [Oracle Container Registry](https://container-registry.oracle.com/)
 - setup the DB user login/password
 - load a sample dataset
 - create a property graph on top of the sample dataset
@@ -41,10 +41,10 @@ Clean up existing containers if necessary.
 podman rmi --force -a
 ```
 
-Now pull a new Oracle Database 23ai Free container image.
+Now pull a new *Oracle AI Database 26ai Free Container Image*.
 
 ```sh
-podman run --privileged -d --name 23aifree \
+podman run --privileged -d --name aifree \
  -p 1521:1521 \
  -e ORACLE_PWD=Welcome_1234# \
  -e ORACLE_PDB=freepdb1 \
@@ -63,13 +63,13 @@ You can check the container using:
 
 ```sh
 podman ps
-podman logs 23aifree
+podman logs aifree
 ```
 
-You now have a container running that exposes the standard Oracle Database port `1521` on which you can execute SQL requests. To test the connection to the database, do the following:
+You now have a container running that exposes the standard Oracle AI Database port `1521` on which you can execute SQL requests. To test the connection to the database, do the following:
 
 ```sh
-podman exec -it 23aifree sqlplus pdbadmin/Welcome_1234#@freepdb1
+podman exec -it aifree sqlplus pdbadmin/Welcome_1234#@freepdb1
 ```
 
 ```sql
@@ -85,14 +85,21 @@ quit
 As `GRAPH_USER` you can check that the property graph was created:
 
 ```sh
-podman exec -it 23aifree sqlplus graphuser/Welcome_1234#@freepdb1
+podman exec -it aifree sqlplus graphuser/Welcome_1234#@freepdb1
 ```
 
 ```sql
-select * from graph_table (
-   openflights_graph
-   match (a is airport)-[e]->(b is city)
-   columns (a.name as airport, a.iata as iata, b.city as city)
+select
+  *
+from
+  graph_table (
+    openflights_graph
+    match (a is airport)-[e]->(b is city)
+    columns (
+      a.name as airport,
+      a.iata as iata,
+      b.city as city
+  )
 )
 fetch first 10 rows only;
 ```

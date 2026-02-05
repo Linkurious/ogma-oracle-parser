@@ -1,29 +1,29 @@
 # Getting Started
 
-You have an Oracle Database 23ai and want to display SQL Property Graphs? Great! Let's see how to achieve that with [Ogma](https://doc.linkurious.com/ogma/latest/), a powerful and blazing fast graph visualization library.
+You have an Oracle AI Database 26ai and want to display SQL Property Graphs? Great! Let's see how to achieve that with [Ogma](https://doc.linkurious.com/ogma/latest/), a powerful and blazing fast graph visualization library.
 
-## Create your Oracle Database 23ai Free instance
+## Create your Oracle AI Database 26ai Free instance
 
 You can have a look at our [example](./example), which allows you to visualize a sample property graph in minutes using Podman.
 
-Oracle provides great tutorials/resources on how to create Property Graphs in your Oracle Database:
+Oracle provides great tutorials/resources on how to create Property Graphs in your Oracle AI Database:
 
 - [Tutorial](https://oracle-base.com/articles/23c/sql-property-graphs-and-sql-pgq-23c)
-- [Quick Start guide for working with SQL Property Graphs](https://docs.oracle.com/en/database/oracle/property-graph/23.4/spgdg/sql-property-graph.html)
+- [Quick Start guide for working with SQL Property Graphs](https://docs.oracle.com/en/database/oracle/property-graph/26.1/spgdg/sql-property-graph.html)
 
-## Functions in Oracle Database 23ai to return graph query results as JSON
+## Functions in Oracle AI Database 26ai to return graph query results as JSON
 
-OGMA accepts the result set from SQL graph query (returned nodes, edges, and their properties) in JSON format only. The transformation to JSON relies on the [DBMS_GVT PL/SQL package available on GitHub](https://github.com/oracle/apex/blob/24.1/plugins/region/graph-visualization/optional-23ai-only/gvt_sqlgraph_to_json.sql).  
-The package and a  PL/SQL helper function, `CUST_SQLGRAPH_JSON`, are created upon the creation of the Oracle Database container. (See the [scripts in this folder](https://github.com/Linkurious/ogma-oracle-parser/tree/develop/example/database/scripts)).
+OGMA accepts the result set from SQL graph query (returned nodes, edges, and their properties) in JSON format only. The transformation to JSON relies on the [DBMS_GVT PL/SQL package available on GitHub](https://github.com/oracle/apex/tree/24.2/plugins/region/graph-visualization/required-for-26ai/gvt_sqlgraph_to_json.sql).  
+The package and a  PL/SQL helper function, `CUST_SQLGRAPH_JSON`, are created upon the creation of the Oracle AI Database container. (See the [scripts in this folder](https://github.com/Linkurious/ogma-oracle-parser/tree/develop/example/database/scripts)).
 
 `GVT` is the abbreviation for `Graph Visualization Toolkit`. Details are available in:
 
-- [Oracle Developer´s Guide for Property Graph](https://docs.oracle.com/en/database/oracle/property-graph/24.3/spgdg/visualizing-sql-graph-queries-using-apex-graph-visualization-plug.html)
-- [Oracle Graph JavaScript API Reference for Property Graph Visualization](https://docs.oracle.com/en/database/oracle/property-graph/24.3/pgjsd/index.html).
+- [Oracle Developer´s Guide for Property Graph](https://docs.oracle.com/en/database/oracle/property-graph/26.1/spgdg/visualizing-sql-graph-queries-using-apex-graph-visualization-plug.html)
+- [Oracle Graph JavaScript API Reference for Property Graph Visualization](https://docs.oracle.com/en/database/oracle/property-graph/26.1/pgjsd/index.html).
 
 ## Retrieve your nodes/edges from the database in Node.js
 
-First, install the Ogma, the Oracle Database 23ai connector and ogma-oracle-parser:
+First, install the Ogma, the Oracle AI Database 26ai connector and ogma-oracle-parser:
 
 ```sh
 npm i oracledb @linkurious/ogma @linkurious/ogma-oracle-parser

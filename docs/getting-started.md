@@ -13,8 +13,8 @@ Oracle provides great tutorials/resources on how to create Property Graphs in yo
 
 ## Functions in Oracle Database 23ai to return graph query results as JSON
 
-OGMA accepts the result set from SQL graph query (returned nodes, edges, and their properties) in JSON format only. The transformation to JSON relies on the [DBMS_GVT PL/SQL package available on GitHub](https://github.com/oracle/apex/blob/24.1/plugins/region/graph-visualization/optional-23ai-only/gvt_sqlgraph_to_json.sql).  
-The package and a  PL/SQL helper function, `CUST_SQLGRAPH_JSON`, are created upon the creation of the Oracle Database container. (See the [scripts in this folder](https://github.com/Linkurious/ogma-oracle-parser/tree/develop/example/database/scripts)).
+OGMA accepts the result set from SQL graph query (returned nodes, edges, and their properties) in JSON format only. The transformation to JSON relies on the [DBMS_GVT PL/SQL package available on GitHub](https://github.com/oracle/apex/blob/24.1/plugins/region/graph-visualization/optional-23ai-only/gvt_sqlgraph_to_json.sql).
+The package and a PL/SQL helper function, `CUST_SQLGRAPH_JSON`, are created upon the creation of the Oracle Database container. (See the [scripts in this folder](https://github.com/Linkurious/ogma-oracle-parser/tree/develop/example/database/scripts)).
 
 `GVT` is the abbreviation for `Graph Visualization Toolkit`. Details are available in:
 
@@ -168,7 +168,7 @@ npm install @linkurious/ogma
 Create your Ogma instance:
 
 ```ts
-import Ogma from "@linkurious/ogma";
+import { Ogma } from "@linkurious/ogma";
 import axios from "axios";
 const ogma = new Ogma({
   container: "id-of-your-container",

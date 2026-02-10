@@ -4,16 +4,18 @@ You have an Oracle AI Database 26ai and want to display SQL Property Graphs? Gre
 
 ## Create your Oracle AI Database 26ai Free instance
 
-You can have a look at our [example](./example), which allows you to visualize a sample property graph in minutes using Podman.
+You can have a look at our [example](./example), which allows you to visualize a sample SQL Property Graph in minutes using Podman.
 
-Oracle provides great tutorials/resources on how to create Property Graphs in your Oracle AI Database:
+Oracle provides great resources on how to create and use Property Graphs in your Oracle AI Database:
 
-- [Tutorial](https://oracle-base.com/articles/23c/sql-property-graphs-and-sql-pgq-23c)
 - [Quick Start guide for working with SQL Property Graphs](https://docs.oracle.com/en/database/oracle/property-graph/26.1/spgdg/sql-property-graph.html)
+- [Oracle LiveLabs workshop: "Explore Operational Property Graphs in Oracle AI Database](https://livelabs.oracle.com/ords/r/dbpm/livelabs/view-workshop?wid=3978)
+- [More related workshops on Oracle LiveLabs](https://livelabs.oracle.com/ords/r/dbpm/livelabs/livelabs-workshop-cards?p100_product=66)
+- [Learn ore about the support for Graphs in the Oracle AI DAtabase](https://www.oracle.com/database/integrated-graph-database/)
 
 ## Functions in Oracle AI Database 26ai to return graph query results as JSON
 
-OGMA accepts the result set from SQL graph query (returned nodes, edges, and their properties) in JSON format only. The transformation to JSON relies on the [DBMS_GVT PL/SQL package available on GitHub](https://github.com/oracle/apex/tree/24.2/plugins/region/graph-visualization/required-for-26ai/gvt_sqlgraph_to_json.sql).  
+Ogma accepts the result set from SQL Property Graph query (returned nodes, edges, and their properties) in JSON format only. The transformation to JSON relies on the [DBMS_GVT PL/SQL package available on GitHub](https://github.com/oracle/apex/tree/24.2/plugins/region/graph-visualization/required-for-26ai/gvt_sqlgraph_to_json.sql).  
 The package and a  PL/SQL helper function, `CUST_SQLGRAPH_JSON`, are created upon the creation of the Oracle AI Database container. (See the [scripts in this folder](https://github.com/Linkurious/ogma-oracle-parser/tree/develop/example/database/scripts)).
 
 `GVT` is the abbreviation for `Graph Visualization Toolkit`. Details are available in:
@@ -78,7 +80,7 @@ You can see that the result should look like
 }
 ```
 
-Now, we can use the `CUST_SQLGRAPH_JSON` to retrieve nodes/edges data from the IDs we got from the previous request:
+Now, we can use the `CUST_SQLGRAPH_JSON` function to retrieve the nodes and edges along with their properties from the IDs we got from the previous request:
 
 ```ts
 import { parseLob } from "@linkurious/ogma-oracle-parser";
@@ -133,8 +135,8 @@ Now, what you get is this:
 }
 ```
 
-Where `vlabel` and `elabel` are the labels you have passed to SQL in your `CREATE PROPERTY GRAPH` call. `-id` is the ID of your element in the table.
-And that's it ! You now have retrieved nodes and edges in the [Ogma format](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
+`vlabel` and `elabel` are the labels you have passed to SQL in your `CREATE PROPERTY GRAPH` call. `-id` is the ID of your element in the table.
+And that's it ! You have retrieved the nodes and edges of a Property Graph in the [Ogma format](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
 
 The plugin also provides a [getRawGraph](/api/classes/OgmaOracleParser.html#getrawgraph) function that does all the work for you. You can use it like this:
 

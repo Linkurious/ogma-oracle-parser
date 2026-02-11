@@ -1,4 +1,4 @@
-import Ogma from "@linkurious/ogma";
+import { Ogma } from "@linkurious/ogma";
 import { labelFromId } from "@linkurious/ogma-oracle-parser";
 import { Connector } from "./graph-fetch";
 import { icons } from "./icons";

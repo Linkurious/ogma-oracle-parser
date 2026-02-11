@@ -52,7 +52,7 @@ podman volume create oradata
 ```
 
 ```sh
-podman run --name aifree \
+podman run --privileged -d --name aifree \
  -p 1521:1521 \
  -e ORACLE_PWD=Welcome_1234# \
  -e ORACLE_PDB=freepdb1 \

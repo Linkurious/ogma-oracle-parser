@@ -69,7 +69,7 @@
     "extends": "@linkurious/eslint-config-ogma"
   },
   "peerDependencies": {
-    "@linkurious/ogma": ">=4.5.0",
+    "@linkurious/ogma": ">=5.3.8",
     "oracledb": ">=6.2.0"
   },
   "devDependencies": {

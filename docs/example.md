@@ -84,7 +84,17 @@ podman exec -it aifree bash
 podman exec -it aifree sh
 ```
 
-To test the connection to the pluggable database, do the following:
+To test the connection to the pluggable database from inside the container, do the following:
+
+```sh
+sqlplus system/Welcome_1234#@freepdb1
+```
+
+```sql
+select 1;
+```
+
+To test the connection to the pluggable database from the host, do the following:
 
 ```sh
 podman exec -it aifree sqlplus system/Welcome_1234#@freepdb1
@@ -98,6 +108,11 @@ Logout if everything looks fine.
 
 ```sql
 quit
+```
+
+```sh
+# Exit the container
+exit
 ```
 
 As `GRAPH_USER` you can check that:

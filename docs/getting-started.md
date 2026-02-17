@@ -11,14 +11,16 @@ Oracle provides great resources on how to create and use Property Graphs in your
 - [Quick Start guide for working with SQL Property Graphs](https://docs.oracle.com/en/database/oracle/property-graph/26.1/spgdg/sql-property-graph.html)
 - [Oracle LiveLabs workshop: "Explore Operational Property Graphs in Oracle AI Database](https://livelabs.oracle.com/ords/r/dbpm/livelabs/view-workshop?wid=3978)
 - [More related workshops on Oracle LiveLabs](https://livelabs.oracle.com/ords/r/dbpm/livelabs/livelabs-workshop-cards?p100_product=66)
-- [Learn ore about the support for Graphs in the Oracle AI DAtabase](https://www.oracle.com/database/integrated-graph-database/)
+- [Learn more about the support for Graphs in the Oracle AI Database](https://www.oracle.com/database/integrated-graph-database/)
 
 ## Functions in Oracle AI Database 26ai to return graph query results as JSON
 
-OGMA accepts the result set from SQL graph query (returned nodes, edges, and their properties) in JSON format only. The transformation to JSON relies on the [DBMS_GVT PL/SQL package available on GitHub](https://github.com/oracle/apex/blob/24.1/plugins/region/graph-visualization/optional-23ai-only/gvt_sqlgraph_to_json.sql).
+OGMA accepts the result set from SQL graph query (returned nodes, edges, and their properties) in JSON format only. The transformation to JSON relies on the [DBMS_GVT PL/SQL package available on GitHub](https://github.com/oracle/apex/blob/24.2/plugins/region/graph-visualization/required-for-26ai/gvt_sqlgraph_to_json.sql).
 The package and a PL/SQL helper function, `CUST_SQLGRAPH_JSON`, are created upon the creation of the Oracle Database container. (See the [scripts in this folder](https://github.com/Linkurious/ogma-oracle-parser/tree/develop/example/database/scripts)).
 
-`GVT` is the abbreviation for `Graph Visualization Toolkit`. Details are available in:
+`GVT` is the abbreviation for `Graph Visualization Toolkit`.
+
+Further details are available in:
 
 - [Oracle Developer´s Guide for Property Graph](https://docs.oracle.com/en/database/oracle/property-graph/26.1/spgdg/visualizing-sql-graph-queries-using-apex-graph-visualization-plug.html)
 - [Oracle Graph JavaScript API Reference for Property Graph Visualization](https://docs.oracle.com/en/database/oracle/property-graph/26.1/pgjsd/index.html).

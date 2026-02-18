@@ -54,12 +54,10 @@ podman volume create oradata
 ```sh
 podman run --privileged -d --name aifree \
  -p 1521:1521 \
- -e ORACLE_PWD=Welcome_1234# \
+ --env-file .env \
  -e ORACLE_PDB=freepdb1 \
- -e GRAPH_USER=graphuser \
- -e GRAPH_PWD=Welcome_1234# \
  -v oradata:/opt/oracle/oradata:rw \
- -v ./startup:/home/oracle/startup \
+ -v ./startup:/opt/oracle/scripts/startup \
  -v ./dataset:/home/oracle/dataset:rw \
  -v ./scripts:/home/oracle/scripts:rw \
  container-registry.oracle.com/database/free:latest
@@ -84,7 +82,17 @@ podman exec -it aifree bash
 podman exec -it aifree sh
 ```
 
-To test the connection to the pluggable database, do the following:
+To test the connection to the pluggable database from inside the container, do the following:
+
+```sh
+sqlplus system/Welcome_1234#@freepdb1
+```
+
+```sql
+select 1;
+```
+
+To test the connection to the pluggable database from the host, do the following:
 
 ```sh
 podman exec -it aifree sqlplus system/Welcome_1234#@freepdb1
@@ -98,6 +106,11 @@ Logout if everything looks fine.
 
 ```sql
 quit
+```
+
+```sh
+# Exit the container
+exit
 ```
 
 As `GRAPH_USER` you can check that:

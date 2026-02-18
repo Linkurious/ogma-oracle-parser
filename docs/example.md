@@ -54,12 +54,10 @@ podman volume create oradata
 ```sh
 podman run --privileged -d --name aifree \
  -p 1521:1521 \
- -e ORACLE_PWD=Welcome_1234# \
+ --env-file .env \
  -e ORACLE_PDB=freepdb1 \
- -e GRAPH_USER=graphuser \
- -e GRAPH_PWD=Welcome_1234# \
  -v oradata:/opt/oracle/oradata:rw \
- -v ./startup:/home/oracle/startup \
+ -v ./startup:/opt/oracle/scripts/startup \
  -v ./dataset:/home/oracle/dataset:rw \
  -v ./scripts:/home/oracle/scripts:rw \
  container-registry.oracle.com/database/free:latest

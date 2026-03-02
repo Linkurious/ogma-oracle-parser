@@ -42,14 +42,14 @@ podman rmi --force -a
 podman images
 ```
 
-Now pull the latest *Oracle AI Database 26ai Free Container Image*.  
-Make sure you have enough space left in the home directory of your host machine. The image size is ~10GB.
-
 Create a named volume:
 
 ```sh
 podman volume create oradata
 ```
+
+Now pull the latest *Oracle AI Database 26ai Free Container Image*.  
+Make sure you have enough space left in the home directory of your host machine. The image size is ~10GB.
 
 ```sh
 podman run --privileged -d --name aifree \
@@ -92,6 +92,17 @@ sqlplus system/Welcome_1234#@freepdb1
 select 1;
 ```
 
+Logout if everything looks fine.
+
+```sql
+quit
+```
+
+```sh
+# Exit the container
+exit
+```
+
 To test the connection to the pluggable database from the host, do the following:
 
 ```sh
@@ -108,12 +119,7 @@ Logout if everything looks fine.
 quit
 ```
 
-```sh
-# Exit the container
-exit
-```
-
-As `GRAPH_USER` you can check that:
+As `GRAPH_USER` you can verify that:
 
 1. the sample data is properly loaded and
 2. the SQL Property Graph was created.
@@ -131,7 +137,7 @@ select count(*) from openflights_airports;
 select count(*) from openflights_cities;
 select count(*) from openflights_routes;
 
--- Query the SQL Property Graph and return some properties
+-- A SQL Property Graph query returning the vertex and edge properties, looks as follows:
 select
   *
 from
@@ -146,7 +152,7 @@ from
 )
 fetch first 10 rows only;
 
--- A SQL Property Graph query returning the vertices and edges, looks like the following:
+-- A SQL Property Graph query returning the vertices and edges, looks as follows:
 select
   *
 from
@@ -236,7 +242,7 @@ You now have an the client app that retrieves airports and flight routes by quer
 
 ## Use the client app
 
-You can now navigate to `http://localhost:1337` and see the graph displayed. Or to your remote server IP address if you are running it on a remote server.
+You can now navigate to `http://localhost:1337` and see the graph displayed, or navigate to your remote server replacing `<hostname>` in `http://<hostname>:1337`.
 
 - You can click on a node to see its properties.
 - You can double-click on a node to expand it with one hop.

@@ -31,8 +31,12 @@ const sidebar: DefaultTheme.Sidebar = {
       link: "api/classes/OgmaOracleParser",
     },
     {
+      text: "Functions",
+      link: "api/functions",
+    },
+    {
       text: "Types",
-      link: "api/modules",
+      link: "api/types",
     },
   ],
 };
@@ -47,6 +51,7 @@ export default defineConfig({
     logo: "/logo-small.svg",
     nav: [
       { text: "Getting started", link: "/getting-started" },
+      { text: "CLI Tool", link: "/cli" },
       { text: "Example", link: "/example" },
       { text: "API", link: "/api/classes/OgmaOracleParser" },
     ],

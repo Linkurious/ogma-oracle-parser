@@ -203,15 +203,45 @@ const { parse, parseLob, getRawGraph } = new OgmaOracleParser({
 });
 ```
 
-## Node and edge data types
+## Generate the typescript definition of your nodes and edges
 
-You can type the data of your nodes and edges by passing [ND](/api/classes/OgmaOracleParser.html#type-parameters) and [ED](/api/classes/OgmaOracleParser.html#type-parameters) value in the `OgmaOracleParser` constructor:
+This package provides a powerful CLI tool to generate TypeScript type definitions for your nodes and edges. The CLI connects to your Oracle Database, introspects the property graph schema, and generates type-safe definitions.
+
+For comprehensive documentation about the CLI tool, see the [CLI Tool documentation](./cli.md).
+
+### Quick Start
+
+```sh
+npx ogma-oracle-types build
+```
+
+The CLI will interactively prompt you for database connection details and generate types for your property graphs.
+
+### Configuration with .env
+
+You can create a `.env` file to provide default values for the connection prompts:
+
+```sh
+DB_HOST=localhost
+DB_USER=graphuser
+DB_PASS=Welcome_1234#
+DB_PORT=1521
+DB_SERVICE=freepdb1
+OUTPUT_FILE=./types.ts
+```
+
+### Using Generated Types
+
+Once generated, you can use the types with Ogma for type-safe graph operations:
 
 ```ts
-type NodeDataType = { name: string; id: number };
-type EdgeDataType = { score: number };
-const { parse, parseLob, getRawGraph } = new OgmaOracleParser<
-  NodeDataType,
-  EdgeDataType
->();
+import { GraphTypeMap } from "./generated-types";
+
+function fetchSubGraph<T extends keyof GraphTypeMap>(graphType: T) {
+  return axios.get<GraphTypeMap[T]["graph"]>(`nodes`).then(({ data }) => {
+    return data;
+  });
+}
 ```
+
+For more details including troubleshooting, advanced usage, and complete examples, see the [CLI Tool documentation](./cli.md).

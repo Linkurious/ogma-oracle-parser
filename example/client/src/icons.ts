@@ -6,10 +6,11 @@ placeholder.style.visibility = "hidden";
 const getIconCode = (className: string) => {
   placeholder.className = className;
   const code = getComputedStyle(placeholder, ":before").content;
-  return code;
+  return code.replace(/"/g, "");
 };
 
 export const icons = {
-  AIRPORTS: getIconCode("fa-solid fa-plane"),
-  CITIES: getIconCode("fa-solid fa-city"),
+  AIRPORT: getIconCode("fa-solid fa-plane"),
+  CITY: getIconCode("fa-solid fa-city"),
+  ACCOUNT: getIconCode("fa-solid fa-dollar-sign"),
 };

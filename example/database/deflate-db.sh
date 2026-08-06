@@ -1,3 +1,3 @@
 #!/bin/bash
 
-unzip ./dataset/dataset.zip -d ./dataset
+unzip ./dataset.zip -d .

@@ -252,3 +252,14 @@ You can now navigate to `http://localhost:1337` and see the graph displayed, or 
   <source src="/video.webm" type="video/webm">
   Your browser does not support the video tag.
 </video>
+
+## Select a custom Database
+
+If you want to use your own database, you can click on the `custom` button in the client app and provide the following information:
+ - `Host`: The IP address of your database.
+ - `Port`: The port of your database.
+ - `Service`: The service name of your database.
+ - `User`: The user to connect to the database.
+ - `Password`: The password of the user.
+
+If there are any Graph databases in the database, it will appear on the list. Just select one and start navigating your graph.

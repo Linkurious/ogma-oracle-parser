@@ -14,14 +14,15 @@ if (env === "dev") {
   user = process.env.DB_USER_PROD!;
   password = process.env.DB_PASS_PROD!;
 }
-const port = process.env.DB_PORT;
+const port = +process.env.DB_PORT;
 const service = process.env.DB_SERVICE;
-const connectString = host + ":" + port + "/" + service;
 
 const dbConfig = {
   user: user,
   password: password,
-  connectString: connectString,
+  host,
+  port,
+  service,
 };
 
 export default dbConfig;

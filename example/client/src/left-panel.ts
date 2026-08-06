@@ -1,6 +1,6 @@
 import { Node, Edge } from "@linkurious/ogma";
-import { rowId, labelFromId } from "@linkurious/ogma-oracle-parser";
-export class LeftPanel {
+import { rowId, eltNameFromId } from "@linkurious/ogma-oracle-parser";
+class LeftPanel {
   private rootElement: HTMLElement;
   constructor(rootElement: HTMLElement) {
     this.rootElement = rootElement;
@@ -12,7 +12,7 @@ export class LeftPanel {
 
     const eltType = element.isNode ? "node" : "edge";
     const eltId = element.getId() as string;
-    const type = labelFromId(eltId);
+    const type = eltNameFromId(eltId);
     const id = rowId(eltId);
     const properties = `<ul>${Object.entries(element.getData()).reduce(
       (acc, [key, value]) => {
@@ -38,7 +38,19 @@ export class LeftPanel {
   clear() {
     this.rootElement.classList.remove("slide-in");
     this.rootElement.classList.add("slide-out");
-
     this.rootElement.innerHTML = "";
   }
+  hide() {
+    this.rootElement.classList.add("hidden");
+  }
+  show() {
+    this.rootElement.classList.remove("hidden");
+  }
+  getRootElement() {
+    return this.rootElement;
+  }
 }
+
+const leftPanelRoot = document.createElement("div");
+leftPanelRoot.classList.add("left-panel");
+export const leftPanel = new LeftPanel(leftPanelRoot);

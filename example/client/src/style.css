@@ -79,3 +79,38 @@ body {
 .loader.active {
   display: flex;
 }
+.graphs,.db-form{
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  justify-content: center;
+  flex-direction: column;
+}
+.graphs>button{
+  padding: 1em;
+  background-color: rgba(200, 200, 200, 0.4);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.graphs>button:hover{
+  background-color: rgba(200, 200, 200, 0.6);
+}
+.graphs>button:active{
+  background-color: rgba(200, 200, 200, 0.8);
+}
+.hidden{
+  display: none;
+}
+.db-form>form{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+}
+.db-form>form>button{
+  grid-column-start: 2;
+}

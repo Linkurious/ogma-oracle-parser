@@ -1,0 +1,12 @@
+{
+  "extends": ["@linkurious/eslint-config-ogma"],
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module",
+  },
+  "globals": {
+    "Ogma": true,
+    "document": true,
+    "window": true,
+  },
+}

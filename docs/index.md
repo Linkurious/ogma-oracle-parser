@@ -11,6 +11,9 @@ hero:
       text: Getting started
       link: /getting-started
     - theme: alt
+      text: CLI Tool
+      link: /cli
+    - theme: alt
       text: Example
       link: /example
     - theme: alt

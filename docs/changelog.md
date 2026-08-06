@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.4 (2026-02-05)
+
+- Update Oracle AI Database 26ai
+
 ## 1.0.3 (2024-15-10)
 
 - Update Oracle to 23ai

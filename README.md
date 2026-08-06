@@ -2,7 +2,7 @@
 
 ![@linkurious/ogma-oracle-parser Logo](https://raw.githubusercontent.com/Linkurious/ogma-oracle-parser/develop/logo.svg)
 
-Seamless communication between [Ogma](https://doc.linkurious.com/ogma/latest/) and [Oracle Database 23ai SQL Property Graphs](https://docs.oracle.com/en/database/oracle/property-graph/24.3/spgdg/sql-property-graph.html).
+Seamless communication between [Ogma](https://doc.linkurious.com/ogma/latest/) and  [SQL Property Graphs in the Oracle AI Database](https://docs.oracle.com/en/database/oracle/property-graph/26.1/spgdg/sql-property-graph.html).
 
 If you don't have an Ogma licence, [contact us](https://doc.linkurious.com/ogma/latest/contact.html).
 
@@ -34,7 +34,7 @@ For more information, see the [CLI Tool documentation](https://linkurious.github
 
 # How to contribute?
 
-This is an open source project maintained by Linkurious, if you want to contribute, you can submit a PR and we'll exmine it.
+This is an open source project maintained by Linkurious, if you want to contribute, you can submit a PR and we'll examine it.
 
 # Licence
 

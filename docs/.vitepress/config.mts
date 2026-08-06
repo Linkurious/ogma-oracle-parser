@@ -44,7 +44,7 @@ const sidebar: DefaultTheme.Sidebar = {
 export default defineConfig({
   title: "ogma-oracle-parser",
   description:
-    "Seamless communication between Ogma and SQL Property Graphs in the Oracle Database 23ai",
+    "Seamless communication between Ogma and SQL Property Graphs in the Oracle AI Database 26ai",
   head: [["link", { rel: "icon", href: "/ogma-oracle-parser/favicon.ico" }]],
   base: "/ogma-oracle-parser/",
   themeConfig: {

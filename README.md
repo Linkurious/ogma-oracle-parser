@@ -8,7 +8,7 @@ If you don't have an Ogma licence, [contact us](https://doc.linkurious.com/ogma/
 
 # Features
 
-- **Parse Oracle Graph Responses**: Seamlessly convert Oracle Database 23ai Property Graph query results into Ogma's RawGraph format
+- **Parse Oracle Graph Responses**: Seamlessly convert Oracle Database 26ai Property Graph query results into Ogma's RawGraph format
 - **Type-Safe Development**: Generate TypeScript type definitions for your graph schema using the built-in CLI tool
 - **Flexible ID Mapping**: Customize how Oracle graph IDs map to Ogma node/edge IDs
 - **Full Schema Support**: Automatically handles vertices, edges, and their properties
@@ -26,7 +26,7 @@ npx ogma-oracle-types build
 ```
 
 The CLI tool will:
-- Connect to your Oracle Database 23ai instance
+- Connect to your Oracle Database 26ai instance
 - Introspect your property graph schema
 - Generate TypeScript type definitions for type-safe development
 

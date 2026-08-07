@@ -52,7 +52,6 @@ JOIN USER_PG_KEYS k
     [],
     { outFormat: OUT_FORMAT_OBJECT }
   );
-  console.log("elements", elements);
   elements?.forEach((row) => {
 
     const {

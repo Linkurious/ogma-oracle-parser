@@ -91,6 +91,10 @@ DB_PASS='Welcome_1234#'
 DB_PORT=1521
 DB_SERVICE=freepdb1
 NODE_PORT=1337
+
+# Alternatively, provide a full Oracle connect string
+# (takes precedence over DB_HOST/DB_PORT/DB_SERVICE):
+# DB_CONNECT_STRING=localhost:1521/freepdb1
               `)
             );
             break;
@@ -108,12 +112,42 @@ program
     const env = dotenv.config().parsed || {};
     const defaults = {
       user: env.DB_USER || "system",
-      password: env.DB_PASS || "oracle",
+      password: env.DB_PASSWORD || "oracle",
       port: env.DB_PORT || "1521",
       service: env.DB_SERVICE || "orcl",
       host: env.DB_HOST || "localhost",
+      connectString: env.DB_CONNECT_STRING || "",
       outputFile: env.OUTPUT_FILE || "./types.ts",
     };
+    const connectionPrompts = defaults.connectString
+      ? [
+          {
+            type: "input" as const,
+            name: "connectString",
+            message: "What connect string should I use?",
+            default: defaults.connectString,
+          },
+        ]
+      : [
+          {
+            type: "input" as const,
+            name: "port",
+            message: "What port should I use?",
+            default: defaults.port,
+          },
+          {
+            type: "input" as const,
+            name: "service",
+            message: "What service should I use?",
+            default: defaults.service,
+          },
+          {
+            type: "input" as const,
+            name: "host",
+            message: "What host should I use?",
+            default: defaults.host,
+          },
+        ];
     const options = await inquirer.prompt([
       {
         type: "input",
@@ -124,27 +158,11 @@ program
       {
         type: "password",
         name: "password",
-        message: "What password should I use?",
-        default: defaults.password,
+        message: `What password should I use?${
+          defaults.password ? " (press enter to use .env value)" : ""
+        }`,
       },
-      {
-        type: "input",
-        name: "port",
-        message: "What port should I use?",
-        default: defaults.port,
-      },
-      {
-        type: "input",
-        name: "service",
-        message: "What service should I use?",
-        default: defaults.service,
-      },
-      {
-        type: "input",
-        name: "host",
-        message: "What host should I use?",
-        default: defaults.host,
-      },
+      ...connectionPrompts,
       {
         type: "input",
         name: "outputFile",
@@ -153,10 +171,18 @@ program
       },
     ]);
     const connectString =
+      options.connectString ||
       options.host + ":" + options.port + "/" + options.service;
+    const password = options.password || defaults.password;
+      console.log({
+        user: options.user,
+        password,
+        connectString,
+      })
+    oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
     const conn = await oracledb.getConnection({
       user: options.user,
-      password: options.password,
+      password,
       connectString,
     });
     const schema = await generateSchema(conn);

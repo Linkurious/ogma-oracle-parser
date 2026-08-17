@@ -54,7 +54,7 @@
     "LICENCE",
     "dist/ogma-oracle-parser.mjs",
     "dist/ogma-oracle-parser.umd.js",
-    "dist/types/index.d.ts",
+    "dist/types/*.d.ts",
     "dist/cli.js",
     "README.md"
   ],

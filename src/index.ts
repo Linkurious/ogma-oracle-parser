@@ -1,45 +1,19 @@
 import { RawGraph } from "@linkurious/ogma";
-import { Connection, Lob } from "oracledb";
-import { OracleResponse, ParserOptions, SQLID } from "./types";
+import {default as oracledb, Connection, Lob } from "oracledb";
+import {
+  EdgeSchema,
+  VerticeSchema,
+  ElementID,
+  OracleResponse,
+  ParserOptions,
+  Schema,
+  SQLID,
+} from "./types";
+import { SQLIDfromId, SQLIDtoId } from "./utils";
 export * from "./types";
-/**
- * Transforms an id from SQL database to a string id
- * @param rawId SQL Oracle ID
- * @returns string id
- */
-export function SQLIDtoId(sqlid: SQLID) {
-  const match = sqlid.match(/(.*)\{.+:([0-9]+)/);
-  if (!match || match.length !== 3) throw new Error("Invalid ID");
-  return `${match[1]}:${match[2]}`;
-}
-/**
- * Retrieves the elment ID in his table ID from a string id
- * @param id a string id (from SQLIDToId)
- * @returns SQL ID in table
- */
-export function rowId(id: string) {
-  const match = id.match(/(.+):(.+)/);
-  if (!match || match.length !== 3) throw new Error("Invalid ID");
-  return match[2];
-}
-/**
- * Retrieves the label from a string id
- * @param id a string id (from SQLIDToId)
- * @returns label defined in create property graph query
- */
-export function labelFromId(id: string) {
-  const match = id.match(/(.+):(.+)/);
-  if (!match || match.length !== 3) throw new Error("Invalid ID");
-  return match[1];
-}
-/**
- * Transforms a string id to a SQL ID
- * @param id a string id (from rawIdToId)
- * @returns a SQL ID
- */
-export function SQLIDfromId(id: string): SQLID {
-  return `${labelFromId(id)}{"ID":${+rowId(id)}}`;
-}
+export * from "./schema";
+export * from "./utils";
+const BIND_IN = 3001;
 
 /**
  * Read a lob and parse it as JSON
@@ -65,6 +39,170 @@ export function readLob<T = unknown>(lob: Lob) {
   });
 }
 
+/**
+ * Executes a query
+ * and returns a [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
+ * This function does not use CUST_SQL_GRAPH_TO_JSON but a schema.
+ * @param options
+ * @param options.query The query to execute
+ * @param options.conn The connection to use
+ * @param options.schema The schema to use
+ * @returns a RawgGraph
+ */
+export async function getRawGraphFromSchema<N, E>({
+  query,
+  conn,
+  schema,
+}: {
+  query: string;
+  conn: Connection;
+  schema: Schema;
+}) {
+  const graph: RawGraph<N, E> = { nodes: [], edges: [] };
+  oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
+  const { rows } = await conn.execute<Record<string, ElementID>[]>(query);
+  if (!rows) {
+    return graph;
+  }
+  return await getGraph({
+    conn,
+    ids: rows.flat(),
+    schema,
+  });
+}
+
+async function getGraph<N, E>({
+  conn,
+  ids,
+  schema,
+}: {
+  conn: Connection;
+  ids: Record<string, ElementID>[];
+  schema: Schema;
+}) {
+  const graph = { nodes: [], edges: [] } as RawGraph<N, E>;
+  const idsPerType: Map<string, Set<Record<string, number>>> = new Map();
+  let graphName = "";
+  for (let i = 0; i < ids.length; i++) {
+    Object.keys(ids[i]).forEach((key) => {
+      const element = ids[i][key];
+      if (!graphName|| !graphName.length) {
+        graphName = element.GRAPH_NAME;
+      }
+      const table = element.ELEM_TABLE;
+      const id = element.KEY_VALUE;
+      if (!idsPerType.has(table)) {
+        idsPerType.set(table, new Set());
+      }
+      idsPerType.get(table)!.add(id);
+    });
+  }
+  const graphTables = Array.from(idsPerType.keys());
+  for (let i = 0; i < graphTables.length; i++) {
+    const graphTable = graphTables[i];
+    const isEdge = schema[graphName].edgeMap.has(graphTable);
+    const isVertex = schema[graphName].verticeMap.has(graphTable);
+    if (!isEdge && !isVertex) {
+      throw new Error(
+        `Ogma Oracle Parser: Element ${graphTable} from graph ${graphName} not found in schema`
+      );
+    }
+    const arr: unknown[] = isEdge ? graph.edges : graph.nodes;
+    const element = isEdge
+      ? schema[graphName].edgeMap.get(graphTable)!
+      : schema[graphName].verticeMap.get(graphTable)!;
+    const table = element.name;
+    const ids = Array.from(idsPerType.get(graphTable) || []).map(
+      (objId) => objId[element.keyColumn]
+    );
+
+    // Detect if IDs are strings or numbers
+    const firstId = ids[0];
+    const isStringId = typeof firstId === 'string';
+
+    // Create the appropriate table type
+    const tableTypeName = isStringId ? 'VARCHAR2_TABLE' : 'NUMBER_TABLE';
+    const tableTypeDefinition = isStringId ? 'VARCHAR2(4000)' : 'NUMBER';
+
+    // Construct the query using the TABLE function to bind the array
+    await conn.execute<(string | number)[]>(
+      `CREATE OR REPLACE TYPE ${tableTypeName} AS TABLE OF ${tableTypeDefinition}`,
+      []
+    );
+    const properties: string[] = [element.keyColumn];
+    if (isEdge) {
+      const edge = element as EdgeSchema;
+      properties.push(edge.source.edgeColName);
+      properties.push(edge.destination.edgeColName);
+    }
+    Object.keys(element.properties).forEach((key) => {
+      properties.push(key);
+    });
+    // Drive from the (small) bound collection into the (large) base table via
+    // TABLE(:idArray). MEMBER OF is opaque to the CBO and forces a full scan;
+    // an equality join on COLUMN_VALUE lets it use the key-column index. The
+    // hints pin the plan to nested loops with an index probe per id.
+    const query = `
+       SELECT /*+ LEADING(t a) USE_NL(a) INDEX(a) CARDINALITY(t ${ids.length}) */
+              ${properties.map((p) => `a.${p}`).join(",")}
+        FROM ${table} a,
+             TABLE(:idArray) t
+        WHERE a.${element.keyColumn} = t.COLUMN_VALUE
+      `;
+    // Column names are dynamic (element.keyColumn, edge endpoints,
+    // Object.keys(element.properties)), so the best static shape is a
+    // string-keyed record; value types mirror `propertiesType` plus null.
+    type Row = Record<string, string | number | boolean | Date | null>;
+
+    // Execute the query with the bound array
+    const result = await conn.execute<Row>(
+      query,
+      {
+        idArray: { type: tableTypeName, dir: BIND_IN, val: ids },
+      },
+      {
+        resultSet: true, // Enable cursor mode to fetch rows in batches
+        prefetchRows: 100, // Adjust the prefetch size as needed
+      }
+    );
+    const resultSet = result.resultSet!;
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const rows = await resultSet.getRows(100);
+      if (!rows || rows.length === 0) {
+        break; // No more rows to fetch
+      }
+      if (isEdge) {
+        const edge = element as EdgeSchema;
+        for (let k = 0; k < rows.length; k++) {
+          const row = rows[k];
+          const id = `${element.elementName}:${row[element.keyColumn]}`;
+          const source = `${edge.source.vertexTable}:${row[edge.source.edgeColName]}`;
+          const target = `${edge.destination.vertexTable}:${row[edge.destination.edgeColName]}`;
+          arr.push({
+            id,
+            source,
+            target,
+            data: Object.fromEntries(properties.map((k) => [k, row[k]])),
+          });
+        }
+      } else {
+        const node = element as VerticeSchema;
+        for (let k = 0; k < rows.length; k++) {
+          const row = rows[k];
+          const id = `${element.elementName}:${row[node.keyColumn]}`;
+          arr.push({
+            id,
+            data: Object.fromEntries(properties.map((k) => [k, row[k]])),
+          });
+        }
+      }
+    }
+    await resultSet.close();
+  }
+  return graph;
+}
 /**
  * Parser for Oracle SQL Graph
  * @typeParam ND [Node data type](https://doc.linkurious.com/ogma/latest/tutorials/typescript/index.html#data-typing)
@@ -111,7 +249,7 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
   /**
    * Read a lob and parse it as [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
    * @param lob
-   * @returns
+   * @returns A [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
    */
   parseLob<N = ND, E = ED>(lob: Lob) {
     return readLob<OracleResponse<N, E> & { numResults: number }>(lob).then(
@@ -174,6 +312,27 @@ export class OgmaOracleParser<ND = unknown, ED = unknown> {
 }
 const parser = new OgmaOracleParser({ SQLIDtoId, SQLIDfromId });
 export default parser;
+/**
+ * Takes an [OracleResponse](/api/modules.html#oracleresponse) and returns a RawGraph
+ * @param param0 The JSON returned by CUST_SQLGRAPH_JSON
+ * @returns A [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
+ */
 export const parse = parser.parse.bind(parser);
+/**
+ * Read a lob and parse it as [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
+ * @param lob
+ * @returns A [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
+ */
 export const parseLob = parser.parseLob.bind(parser);
+/**
+ * Executes a query (wrapped in CUST_SQLGRAPH_JSON)
+ * and returns a [RawGraph](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
+ * @param options
+ * @param options.query The query to execute
+ * @param options.conn The connection to use
+ * @param options.pageStart The page to start from (default 0)
+ * @param options.pageLength The page length (default 32000)
+ * @param options.maxResults The maximum number of elements returned (nodes + edges) (default Infinity)
+ * @returns a RawgGraph
+ */
 export const getRawGraph = parser.getRawGraph.bind(parser);

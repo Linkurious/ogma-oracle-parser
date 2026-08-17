@@ -31,8 +31,12 @@ const sidebar: DefaultTheme.Sidebar = {
       link: "api/classes/OgmaOracleParser",
     },
     {
+      text: "Functions",
+      link: "api/functions",
+    },
+    {
       text: "Types",
-      link: "api/modules",
+      link: "api/types",
     },
   ],
 };
@@ -40,13 +44,14 @@ const sidebar: DefaultTheme.Sidebar = {
 export default defineConfig({
   title: "ogma-oracle-parser",
   description:
-    "Seamless communication between Ogma and SQL Property Graphs in the Oracle Database 23ai",
+    "Seamless communication between Ogma and SQL Property Graphs in the Oracle AI Database 26ai",
   head: [["link", { rel: "icon", href: "/ogma-oracle-parser/favicon.ico" }]],
   base: "/ogma-oracle-parser/",
   themeConfig: {
     logo: "/logo-small.svg",
     nav: [
       { text: "Getting started", link: "/getting-started" },
+      { text: "CLI Tool", link: "/cli" },
       { text: "Example", link: "/example" },
       { text: "API", link: "/api/classes/OgmaOracleParser" },
     ],

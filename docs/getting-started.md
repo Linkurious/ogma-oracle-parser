@@ -1,36 +1,42 @@
 # Getting Started
 
-You have an Oracle Database 23ai and want to display SQL Property Graphs? Great! Let's see how to achieve that with [Ogma](https://doc.linkurious.com/ogma/latest/), a powerful and blazing fast graph visualization library.
+You have an Oracle AI Database 26ai and want to display SQL Property Graphs? Great! Let's see how to achieve that with [Ogma](https://doc.linkurious.com/ogma/latest/), a powerful and blazing fast graph visualization library.
 
-## Create your Oracle Database 23ai Free instance
+## Create your Oracle AI Database 26ai Free instance
 
-You can have a look at our [example](./example), which allows you to visualize a sample property graph in minutes using Podman.
+You can have a look at our [example](./example), which allows you to visualize a sample SQL Property Graph in minutes using Podman.
 
-Oracle provides great tutorials/resources on how to create Property Graphs in your Oracle Database:
+Oracle provides great resources on how to create and use Property Graphs in your Oracle AI Database:
 
-- [Tutorial](https://oracle-base.com/articles/23c/sql-property-graphs-and-sql-pgq-23c)
-- [Quick Start guide for working with SQL Property Graphs](https://docs.oracle.com/en/database/oracle/property-graph/23.4/spgdg/sql-property-graph.html)
+- [Quick Start guide for working with SQL Property Graphs](https://docs.oracle.com/en/database/oracle/property-graph/26.1/spgdg/sql-property-graph.html)
+- [Oracle LiveLabs workshop: "Explore Operational Property Graphs in Oracle AI Database](https://livelabs.oracle.com/ords/r/dbpm/livelabs/view-workshop?wid=3978)
+- [More related workshops on Oracle LiveLabs](https://livelabs.oracle.com/ords/r/dbpm/livelabs/livelabs-workshop-cards?p100_product=66)
+- [Learn more about the support for Graphs in the Oracle AI Database](https://www.oracle.com/database/integrated-graph-database/)
 
-## Functions in Oracle Database 23ai to return graph query results as JSON
+## Functions in Oracle AI Database 26ai to return graph query results as JSON
 
-OGMA accepts the result set from SQL graph query (returned nodes, edges, and their properties) in JSON format only. The transformation to JSON relies on the [DBMS_GVT PL/SQL package available on GitHub](https://github.com/oracle/apex/blob/23.2/plugins/region/graph-visualization/optional-23ai-only/gvt_sqlgraph_to_json.sql).  The package and a  PL/SQL helper function, `CUST_SQLGRAPH_JSON`, are created upon the creation of the Oracle Database container. (See the [scripts in this folder](https://github.com/Linkurious/ogma-oracle-parser/tree/develop/example/database/scripts)).
+OGMA accepts the result set from SQL graph query (returned nodes, edges, and their properties) in JSON format only. The transformation to JSON relies on the [DBMS_GVT PL/SQL package available on GitHub](https://github.com/oracle/apex/blob/24.2/plugins/region/graph-visualization/required-for-26ai/gvt_sqlgraph_to_json.sql).
+The package and a PL/SQL helper function, `CUST_SQLGRAPH_JSON`, are created upon the creation of the Oracle Database container. (See the [scripts in this folder](https://github.com/Linkurious/ogma-oracle-parser/tree/develop/example/database/scripts)).
 
-`GVT` is the abbreviation for `Graph Visualization Toolkit`. Details are available in:
+`GVT` is the abbreviation for `Graph Visualization Toolkit`.
 
-- [Oracle Developer´s Guide for Property Graph](https://docs.oracle.com/en/database/oracle/property-graph/24.3/spgdg/visualizing-sql-graph-queries-using-apex-graph-visualization-plug.html)
-- [Oracle Graph JavaScript API Reference for Property Graph Visualization](https://docs.oracle.com/en/database/oracle/property-graph/23.4/pgjsd/index.html).
+Further details are available in:
+
+- [Oracle Developer´s Guide for Property Graph](https://docs.oracle.com/en/database/oracle/property-graph/26.1/spgdg/visualizing-sql-graph-queries-using-apex-graph-visualization-plug.html)
+- [Oracle Graph JavaScript API Reference for Property Graph Visualization](https://docs.oracle.com/en/database/oracle/property-graph/26.1/pgjsd/index.html).
 
 ## Retrieve your nodes/edges from the database in Node.js
 
-First, install the Ogma, the Oracle Database 23ai connector and ogma-oracle-parser:
+First, install the Ogma, the Oracle AI Database 26ai connector and ogma-oracle-parser:
 
 ```sh
 npm i oracledb @linkurious/ogma @linkurious/ogma-oracle-parser
 ```
 
-Create your DB connection:
+Create your DB connection and make it use Object out format:
 
 ```ts
+oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const connectString = host + ":" + port + "/" + service;
 oracledb.getConnection({
   user,
@@ -77,7 +83,7 @@ You can see that the result should look like
 }
 ```
 
-Now, we can use the `CUST_SQLGRAPH_JSON` to retrieve nodes/edges data from the IDs we got from the previous request:
+Now, we can use the `CUST_SQLGRAPH_JSON` function to retrieve the nodes and edges along with their properties from the IDs we got from the previous request:
 
 ```ts
 import { parseLob } from "@linkurious/ogma-oracle-parser";
@@ -132,8 +138,8 @@ Now, what you get is this:
 }
 ```
 
-Where `vlabel` and `elabel` are the labels you have passed to SQL in your `CREATE PROPERTY GRAPH` call. `-id` is the ID of your element in the table.
-And that's it ! You now have retrieved nodes and edges in the [Ogma format](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
+`vlabel` and `elabel` are the labels you have passed to SQL in your `CREATE PROPERTY GRAPH` call. `-id` is the ID of your element in the table.
+And that's it ! You have retrieved the nodes and edges of a Property Graph in the [Ogma format](https://doc.linkurious.com/ogma/latest/api.html#RawGraph)
 
 The plugin also provides a [getRawGraph](/api/classes/OgmaOracleParser.html#getrawgraph) function that does all the work for you. You can use it like this:
 
@@ -167,7 +173,7 @@ npm install @linkurious/ogma
 Create your Ogma instance:
 
 ```ts
-import Ogma from "@linkurious/ogma";
+import { Ogma } from "@linkurious/ogma";
 import axios from "axios";
 const ogma = new Ogma({
   container: "id-of-your-container",
@@ -198,15 +204,45 @@ const { parse, parseLob, getRawGraph } = new OgmaOracleParser({
 });
 ```
 
-## Node and edge data types
+## Generate the typescript definition of your nodes and edges
 
-You can type the data of your nodes and edges by passing [ND](/api/classes/OgmaOracleParser.html#type-parameters) and [ED](/api/classes/OgmaOracleParser.html#type-parameters) value in the `OgmaOracleParser` constructor:
+This package provides a powerful CLI tool to generate TypeScript type definitions for your nodes and edges. The CLI connects to your Oracle Database, introspects the property graph schema, and generates type-safe definitions.
+
+For comprehensive documentation about the CLI tool, see the [CLI Tool documentation](./cli.md).
+
+### Quick Start
+
+```sh
+npx ogma-oracle-types build
+```
+
+The CLI will interactively prompt you for database connection details and generate types for your property graphs.
+
+### Configuration with .env
+
+You can create a `.env` file to provide default values for the connection prompts:
+
+```sh
+DB_HOST=localhost
+DB_USER=graphuser
+DB_PASS=Welcome_1234#
+DB_PORT=1521
+DB_SERVICE=freepdb1
+OUTPUT_FILE=./types.ts
+```
+
+### Using Generated Types
+
+Once generated, you can use the types with Ogma for type-safe graph operations:
 
 ```ts
-type NodeDataType = { name: string; id: number };
-type EdgeDataType = { score: number };
-const { parse, parseLob, getRawGraph } = new OgmaOracleParser<
-  NodeDataType,
-  EdgeDataType
->();
+import { GraphTypeMap } from "./generated-types";
+
+function fetchSubGraph<T extends keyof GraphTypeMap>(graphType: T) {
+  return axios.get<GraphTypeMap[T]["graph"]>(`nodes`).then(({ data }) => {
+    return data;
+  });
+}
 ```
+
+For more details including troubleshooting, advanced usage, and complete examples, see the [CLI Tool documentation](./cli.md).

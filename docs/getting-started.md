@@ -33,9 +33,10 @@ First, install the Ogma, the Oracle AI Database 26ai connector and ogma-oracle-p
 npm i oracledb @linkurious/ogma @linkurious/ogma-oracle-parser
 ```
 
-Create your DB connection:
+Create your DB connection and make it use Object out format:
 
 ```ts
+oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 const connectString = host + ":" + port + "/" + service;
 oracledb.getConnection({
   user,

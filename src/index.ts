@@ -1,7 +1,8 @@
 import { RawGraph } from "@linkurious/ogma";
-import { Connection, Lob } from "oracledb";
+import {default as oracledb, Connection, Lob } from "oracledb";
 import {
   EdgeSchema,
+  VerticeSchema,
   ElementID,
   OracleResponse,
   ParserOptions,
@@ -58,7 +59,8 @@ export async function getRawGraphFromSchema<N, E>({
   schema: Schema;
 }) {
   const graph: RawGraph<N, E> = { nodes: [], edges: [] };
-  const { rows } = await conn.execute<ElementID[]>(query);
+  oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
+  const { rows } = await conn.execute<Record<string, ElementID>[]>(query);
   if (!rows) {
     return graph;
   }
@@ -75,22 +77,25 @@ async function getGraph<N, E>({
   schema,
 }: {
   conn: Connection;
-  ids: ElementID[];
+  ids: Record<string, ElementID>[];
   schema: Schema;
 }) {
   const graph = { nodes: [], edges: [] } as RawGraph<N, E>;
   const idsPerType: Map<string, Set<Record<string, number>>> = new Map();
   let graphName = "";
   for (let i = 0; i < ids.length; i++) {
-    if (!graphName) {
-      graphName = ids[i].GRAPH_NAME;
-    }
-    const table = ids[i].ELEM_TABLE;
-    const id = ids[i].KEY_VALUE;
-    if (!idsPerType.has(table)) {
-      idsPerType.set(table, new Set());
-    }
-    idsPerType.get(table)!.add(id);
+    Object.keys(ids[i]).forEach((key) => {
+      const element = ids[i][key];
+      if (!graphName|| !graphName.length) {
+        graphName = element.GRAPH_NAME;
+      }
+      const table = element.ELEM_TABLE;
+      const id = element.KEY_VALUE;
+      if (!idsPerType.has(table)) {
+        idsPerType.set(table, new Set());
+      }
+      idsPerType.get(table)!.add(id);
+    });
   }
   const graphTables = Array.from(idsPerType.keys());
   for (let i = 0; i < graphTables.length; i++) {
@@ -108,12 +113,20 @@ async function getGraph<N, E>({
       : schema[graphName].verticeMap.get(graphTable)!;
     const table = element.name;
     const ids = Array.from(idsPerType.get(graphTable) || []).map(
-      (objId) => objId[element.keyColumn] as number
+      (objId) => objId[element.keyColumn]
     );
+
+    // Detect if IDs are strings or numbers
+    const firstId = ids[0];
+    const isStringId = typeof firstId === 'string';
+
+    // Create the appropriate table type
+    const tableTypeName = isStringId ? 'VARCHAR2_TABLE' : 'NUMBER_TABLE';
+    const tableTypeDefinition = isStringId ? 'VARCHAR2(4000)' : 'NUMBER';
 
     // Construct the query using the TABLE function to bind the array
     await conn.execute<(string | number)[]>(
-      `CREATE OR REPLACE TYPE NUMBER_TABLE AS TABLE OF NUMBER`,
+      `CREATE OR REPLACE TYPE ${tableTypeName} AS TABLE OF ${tableTypeDefinition}`,
       []
     );
     const properties: string[] = [element.keyColumn];
@@ -125,17 +138,27 @@ async function getGraph<N, E>({
     Object.keys(element.properties).forEach((key) => {
       properties.push(key);
     });
+    // Drive from the (small) bound collection into the (large) base table via
+    // TABLE(:idArray). MEMBER OF is opaque to the CBO and forces a full scan;
+    // an equality join on COLUMN_VALUE lets it use the key-column index. The
+    // hints pin the plan to nested loops with an index probe per id.
     const query = `
-       SELECT ${properties.join(",")}
-        FROM ${table}
-        WHERE ${element.keyColumn} MEMBER OF :idArray
+       SELECT /*+ LEADING(t a) USE_NL(a) INDEX(a) CARDINALITY(t ${ids.length}) */
+              ${properties.map((p) => `a.${p}`).join(",")}
+        FROM ${table} a,
+             TABLE(:idArray) t
+        WHERE a.${element.keyColumn} = t.COLUMN_VALUE
       `;
-    // Execute the query with the bound array.
-    // Note: oracledb.NUMBER should be replaced with the appropriate type for your IDs.
-    const result = await conn.execute<(string | number)[]>(
+    // Column names are dynamic (element.keyColumn, edge endpoints,
+    // Object.keys(element.properties)), so the best static shape is a
+    // string-keyed record; value types mirror `propertiesType` plus null.
+    type Row = Record<string, string | number | boolean | Date | null>;
+
+    // Execute the query with the bound array
+    const result = await conn.execute<Row>(
       query,
       {
-        idArray: { type: "NUMBER_TABLE", dir: BIND_IN, val: ids },
+        idArray: { type: tableTypeName, dir: BIND_IN, val: ids },
       },
       {
         resultSet: true, // Enable cursor mode to fetch rows in batches
@@ -154,27 +177,24 @@ async function getGraph<N, E>({
         const edge = element as EdgeSchema;
         for (let k = 0; k < rows.length; k++) {
           const row = rows[k];
-          const id = `${element.elementName}:${row[0]}`;
-          const source = `${edge.source.vertexTable}:${row[1]}`;
-          const target = `${edge.destination.vertexTable}:${row[2]}`;
+          const id = `${element.elementName}:${row[element.keyColumn]}`;
+          const source = `${edge.source.vertexTable}:${row[edge.source.edgeColName]}`;
+          const target = `${edge.destination.vertexTable}:${row[edge.destination.edgeColName]}`;
           arr.push({
             id,
             source,
             target,
-            data: Object.fromEntries(
-              properties.map((key, l) => [key, row[l + 3]])
-            ),
+            data: Object.fromEntries(properties.map((k) => [k, row[k]])),
           });
         }
       } else {
+        const node = element as VerticeSchema;
         for (let k = 0; k < rows.length; k++) {
           const row = rows[k];
-          const id = `${element.elementName}:${row[0]}`;
+          const id = `${element.elementName}:${row[node.keyColumn]}`;
           arr.push({
             id,
-            data: Object.fromEntries(
-              properties.map((key, l) => [key, row[l + 1]])
-            ),
+            data: Object.fromEntries(properties.map((k) => [k, row[k]])),
           });
         }
       }

@@ -1,4 +1,4 @@
-import { Connection } from "oracledb";
+import { Connection, OUT_FORMAT_OBJECT } from "oracledb";
 import { EdgeSchema, GraphSchema, Schema } from "./types";
 
 function SQLTypeToType(type: string) {
@@ -24,7 +24,15 @@ function SQLTypeToType(type: string) {
 export async function generateSchema(conn: Connection): Promise<Schema> {
   const schema: Schema = {};
   const { rows: elements } = await conn.execute<
-    [string, string, string, string, string, string, string]
+    {
+      GRAPH_NAME: string;
+      ELEMENT_NAME: string;
+      ELEMENT_KIND: "VERTEX" | "EDGE";
+      LABEL_NAME: string;
+      OBJECT_OWNER: string;
+      OBJECT_NAME: string;
+      KEY_COLUMN: string;
+    }
   >(
     `
     SELECT 
@@ -40,14 +48,23 @@ JOIN USER_PG_ELEMENT_LABELS l
     ON e.element_name = l.element_name
 JOIN USER_PG_KEYS k 
     ON e.graph_name = k.graph_name 
-    AND e.element_name = k.element_name`
+    AND e.element_name = k.element_name`,
+    [],
+    { outFormat: OUT_FORMAT_OBJECT }
   );
-
   elements?.forEach((row) => {
-    const [graphName, elementName, elementKind, label, owner, name, keyColumn] =
-      row;
-    if (!schema[graphName]) {
-      schema[graphName] = {
+
+    const {
+      GRAPH_NAME,
+      ELEMENT_NAME,
+      ELEMENT_KIND,
+      LABEL_NAME,
+      OBJECT_OWNER,
+      OBJECT_NAME,
+      KEY_COLUMN,
+    } = row;
+    if (!schema[GRAPH_NAME]) {
+      schema[GRAPH_NAME] = {
         vertices: [],
         edges: [],
         edgeMap: new Map(),
@@ -56,41 +73,47 @@ JOIN USER_PG_KEYS k
         verticeMap: new Map(),
       };
     }
-    const graph = schema[graphName];
-    graph.elementNameToLabel.set(elementName, label);
-    if (elementKind === "VERTEX") {
+    const graph = schema[GRAPH_NAME];
+    graph.elementNameToLabel.set(ELEMENT_NAME, LABEL_NAME);
+    if (ELEMENT_KIND === "VERTEX") {
       const vertex = {
-        graphName,
-        elementName,
-        label,
-        owner,
-        name,
-        keyColumn,
+        graphName: GRAPH_NAME,
+        elementName: ELEMENT_NAME,
+        label: LABEL_NAME,
+        owner: OBJECT_OWNER,
+        name: OBJECT_NAME,
+        keyColumn: KEY_COLUMN,
         properties: {},
         propertiesType: {},
       };
       graph.vertices.push(vertex);
-      graph.verticeMap.set(elementName, vertex);
-      graph.labelToElement.set(label, vertex);
+      graph.verticeMap.set(ELEMENT_NAME, vertex);
+      graph.labelToElement.set(LABEL_NAME, vertex);
     } else {
       const edge = {
-        graphName,
-        elementName,
-        label,
-        owner,
-        name,
-        keyColumn,
+        graphName: GRAPH_NAME,
+        elementName: ELEMENT_NAME,
+        label: LABEL_NAME,
+        owner: OBJECT_OWNER,
+        name: OBJECT_NAME,
+        keyColumn: KEY_COLUMN,
         properties: {},
         propertiesType: {},
       } as EdgeSchema;
       graph.edges.push(edge);
-      graph.edgeMap.set(elementName, edge);
-      graph.labelToElement.set(label, edge);
+      graph.edgeMap.set(ELEMENT_NAME, edge);
+      graph.labelToElement.set(LABEL_NAME, edge);
     }
   });
   // Find the column and alias for each
   const { rows: definitions } = await conn.execute<
-    [string, string, string, string, string]
+    {
+      GRAPH_NAME: string;
+      ELEMENT_NAME: string;
+      PROPERTY_NAME: string;
+      COLUMN_NAME: string;
+      DATA_TYPE: string;
+    }
   >(
     `
 SELECT 
@@ -102,46 +125,67 @@ SELECT
 FROM USER_PG_PROP_DEFINITIONS p
 LEFT JOIN USER_PG_LABEL_PROPERTIES l
     ON p.GRAPH_NAME = l.GRAPH_NAME
-    AND p.PROPERTY_NAME = l.PROPERTY_NAME`
+    AND p.PROPERTY_NAME = l.PROPERTY_NAME`,
+    [],
+    { outFormat: OUT_FORMAT_OBJECT }
   );
   definitions?.forEach((row) => {
-    const [graphName, elementName, propertyName, columnName, dataType] = row;
-    const graph = schema[graphName];
+    const {
+      GRAPH_NAME,
+      ELEMENT_NAME,
+      PROPERTY_NAME,
+      COLUMN_NAME,
+      DATA_TYPE,
+    } = row;
+    // const [graphName, elementName, propertyName, columnName, dataType] =
+    //   row;
+    const graph = schema[GRAPH_NAME];
     if (!graph) {
       return;
     }
     const element =
-      graph.verticeMap.get(elementName) || graph.edgeMap.get(elementName);
-    element!.properties[propertyName] = columnName;
-    element!.propertiesType[propertyName] = SQLTypeToType(dataType);
+      graph.verticeMap.get(ELEMENT_NAME) || graph.edgeMap.get(ELEMENT_NAME);
+    element!.properties[PROPERTY_NAME] = COLUMN_NAME;
+    element!.propertiesType[PROPERTY_NAME] = SQLTypeToType(DATA_TYPE);
   });
   // set source and destination
   const { rows: sourceDest } = await conn.execute<
-    [string, string, string, string, string, string]
-  >(`SELECT 
+    {
+      GRAPH_NAME: string;
+      EDGE_TAB_NAME: string;
+      VERTEX_TAB_NAME: string;
+      EDGE_END: "SOURCE" | "DESTINATION";
+      EDGE_COL_NAME: string;
+      VERTEX_COL_NAME: string;
+    }
+  >(
+    `SELECT 
       GRAPH_NAME,EDGE_TAB_NAME,VERTEX_TAB_NAME,EDGE_END,EDGE_COL_NAME,VERTEX_COL_NAME 
-      from ALL_PG_EDGE_RELATIONSHIPS`);
+      from ALL_PG_EDGE_RELATIONSHIPS`,
+    [],
+    { outFormat: OUT_FORMAT_OBJECT }
+  );
   sourceDest?.forEach((row) => {
-    const [
-      graphName,
-      edgeTabName,
-      vertexTable,
-      edgeEnd,
-      edgeColName,
-      vertexColumn,
-    ] = row;
-    const graph = schema[graphName];
+    const {
+      GRAPH_NAME,
+      EDGE_TAB_NAME,
+      VERTEX_TAB_NAME,
+      EDGE_END,
+      EDGE_COL_NAME,
+      VERTEX_COL_NAME,
+    } = row;
+    const graph = schema[GRAPH_NAME];
     if (!graph) {
       return;
     }
-    const edge = graph.edgeMap.get(edgeTabName);
+    const edge = graph.edgeMap.get(EDGE_TAB_NAME);
     if (!edge) {
       return;
     }
-    edge[edgeEnd.toLowerCase() as "source" | "destination"] = {
-      vertexTable,
-      edgeColName,
-      vertexColumn,
+    edge[EDGE_END.toLowerCase() as "source" | "destination"] = {
+      vertexTable: VERTEX_TAB_NAME,
+      edgeColName: EDGE_COL_NAME,
+      vertexColumn: VERTEX_COL_NAME,
     };
   });
   return schema;

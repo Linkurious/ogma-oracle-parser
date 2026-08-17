@@ -1,14 +1,8 @@
 import { RawGraph } from "@linkurious/ogma";
-import { Connection, Lob } from "oracledb";
-<<<<<<< HEAD
-import oracledb from "oracledb";
+import {default as oracledb, Connection, Lob } from "oracledb";
 import {
   EdgeSchema,
   VerticeSchema,
-=======
-import {
-  EdgeSchema,
->>>>>>> develop
   ElementID,
   OracleResponse,
   ParserOptions,

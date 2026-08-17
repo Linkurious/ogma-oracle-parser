@@ -63,8 +63,6 @@ JOIN USER_PG_KEYS k
       OBJECT_NAME,
       KEY_COLUMN,
     } = row;
-    // const [graphName, elementName, elementKind, label, owner, name, keyColumn] =
-    row;
     if (!schema[GRAPH_NAME]) {
       schema[GRAPH_NAME] = {
         vertices: [],

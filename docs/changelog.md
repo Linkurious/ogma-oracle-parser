@@ -2,7 +2,7 @@
 
 ## 1.0.4 (2026-02-05)
 
-- Update Oracle AI Database 26ai
+- Update Oracle AI Database 23ai
 
 ## 1.0.3 (2024-15-10)
 
@@ -24,5 +24,5 @@
 
 ## 1.0.0 (2023-12-01)
 
-- added getRawGraph function to run a SQL querry and return a graph object
+- added getRawGraph function to run a SQL query and return a graph object
 - added parseLob function to parse a LOB into a graph object

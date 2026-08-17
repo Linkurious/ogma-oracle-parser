@@ -1,6 +1,6 @@
 # CLI Tool
 
-The `@linkurious/ogma-oracle-parser` package includes a powerful command-line interface (CLI) tool called `ogma-oracle-types` that helps you automatically generate TypeScript type definitions for your Oracle Property Graph schema. This tool connects directly to your Oracle Database 23ai instance, introspects the property graph structure, and generates type-safe definitions that you can use in your Ogma applications.
+The `@linkurious/ogma-oracle-parser` package includes a powerful command-line interface (CLI) tool called `ogma-oracle-types` that helps you automatically generate TypeScript type definitions for your Oracle Property Graph schema. This tool connects directly to your Oracle Database 26ai instance, introspects the property graph structure, and generates type-safe definitions that you can use in your Ogma applications.
 
 ## Why Use the CLI Tool?
 
@@ -60,7 +60,7 @@ npx ogma-oracle-types build
 This command will:
 
 1. Prompt you interactively for database connection details
-2. Connect to your Oracle Database 23ai instance
+2. Connect to your Oracle Database 26ai instance
 3. Introspect the property graph schema
 4. Generate TypeScript type definitions
 5. Save the types to a file
@@ -292,7 +292,7 @@ Add type generation to your `package.json` scripts:
 If you can't connect to the database:
 
 1. **Check Credentials**: Verify your username and password
-2. **Verify Service**: Ensure the service name is correct (often `freepdb1` for Oracle 23ai Free)
+2. **Verify Service**: Ensure the service name is correct (often `freepdb1` for Oracle 26ai Free)
 3. **Network Access**: Confirm the host and port are accessible
 4. **Firewall**: Check if port 1521 is open
 

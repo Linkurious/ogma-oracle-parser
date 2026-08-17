@@ -174,11 +174,6 @@ program
       options.connectString ||
       options.host + ":" + options.port + "/" + options.service;
     const password = options.password || defaults.password;
-      console.log({
-        user: options.user,
-        password,
-        connectString,
-      })
     oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
     const conn = await oracledb.getConnection({
       user: options.user,

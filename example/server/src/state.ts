@@ -45,6 +45,7 @@ class State {
     port: number;
     service: string;
   }) {
+    oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
     const connectString = host + ":" + port + "/" + service;
     this.connection = await oracledb.getConnection({
       user,

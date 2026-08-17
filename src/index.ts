@@ -1,5 +1,6 @@
 import { RawGraph } from "@linkurious/ogma";
 import { Connection, Lob } from "oracledb";
+import oracledb from "oracledb";
 import {
   EdgeSchema,
   VerticeSchema,
@@ -59,6 +60,7 @@ export async function getRawGraphFromSchema<N, E>({
   schema: Schema;
 }) {
   const graph: RawGraph<N, E> = { nodes: [], edges: [] };
+  oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
   const { rows } = await conn.execute<Record<string, ElementID>[]>(query);
   if (!rows) {
     return graph;
@@ -85,7 +87,7 @@ async function getGraph<N, E>({
   for (let i = 0; i < ids.length; i++) {
     Object.keys(ids[i]).forEach((key) => {
       const element = ids[i][key];
-      if (!graphName) {
+      if (!graphName|| !graphName.length) {
         graphName = element.GRAPH_NAME;
       }
       const table = element.ELEM_TABLE;

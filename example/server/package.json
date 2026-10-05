@@ -25,7 +25,7 @@
   "dependencies": {
     "@linkurious/ogma-oracle-parser": "file:../../",
     "bluebird": "3.7.2",
-    "body-parser": "1.20.3",
+    "body-parser": "1.20.6",
     "cors": "2.8.5",
     "dotenv": "16.3.1",
     "express": "4.20.0",

@@ -94,6 +94,6 @@
     "typescript": "^5.2.2",
     "vite": "^5.0.0",
     "vitepress": "^1.0.0-rc.30",
-    "vitest": "^1.0.1"
+    "vitest": "^3.0.0"
   }
 }
